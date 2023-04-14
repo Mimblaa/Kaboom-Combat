@@ -6,14 +6,17 @@ import time
 
 
 class Board:
-    def __init__(self, width, height):
+    def __init__(self, width, height, background=None):
         self.surface = pygame.display.set_mode((width, height), 0, 32)
         pygame.display.set_caption('Kaboom Combat')
-        
-    # TODO
-    # add photo in background
+        self.background = background
+
     def draw(self, *args):
-        self.surface.fill((230, 255, 255))
+        if self.background:
+            self.surface.blit(self.background.image, (0, 0))
+        else:
+            self.surface.fill((255, 255, 255))
+
         for drawable in args:
             drawable.draw_on(self.surface)
             
@@ -48,23 +51,38 @@ class Hero(Drawable):
         if self.rect.y + y <= 0 or self.rect.y + y >= board.surface.get_height() - self.height:
             y = 0
             
-        self.rect.x +=  x
-        self.rect.y +=  y
-            
-        
+        self.rect.x += x
+        self.rect.y += y
+
+
+class Background:
+    def __init__(self, image_file, width, height):
+        self.image = pygame.image.load(image_file)
+        self.image = pygame.transform.scale(self.image, (width, height))  # resize image to fit window
+        self.rect = self.image.get_rect()
+        self.rect.left = 0
+        self.rect.top = 0
+
+    def draw_on(self, surface):
+        surface.blit(self.image, self.rect)
+
+
 class Game():
     def __init__(self, width, height):
         pygame.init()
-        self.board = Board(width, height)
+        self.background = Background('images/background.png',  width, height)
+        self.board = Board(width, height, background=self.background)
         self.hero1 = Hero(width=20, height=20, x=width/2, y=height/2)
         self.hero2 = Hero(width=20, height=20, x=width//3, y=height//3, color=(255, 0, 0))
-        
+
     def run(self):
         
         while not self.handle_events():
             self.board.draw(
+                self.background,
                 self.hero1,
                 self.hero2,
+
             )
 
     def handle_events(self):
@@ -73,7 +91,7 @@ class Game():
             if event.type == pygame.locals.QUIT:
                 pygame.quit()
                 return True
-               
+
         key_input = pygame.key.get_pressed()   
         if key_input[pygame.K_LEFT]:
             self.hero1.move(x=-1, y=0, board=self.board)
