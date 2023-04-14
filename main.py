@@ -3,6 +3,8 @@ import pygame.locals
 import threading as th
 from concurrent.futures import ThreadPoolExecutor
 import time
+import random
+import sys
 
 
 class Board:
@@ -17,8 +19,11 @@ class Board:
         else:
             self.surface.fill((255, 255, 255))
 
-        for drawable in args:
-            drawable.draw_on(self.surface)
+        for arg in args:
+            if isinstance(arg, pygame.sprite.Group):
+                arg.draw(self.surface)
+            else:
+                arg.draw_on(self.surface)
 
         pygame.display.update()
 
@@ -77,15 +82,28 @@ class Timer:
         self.time_left = game_time
 
     def count_down(self):
-        print('bbbb')
         while self.time_left > 0:
             self.time_left -= 1
             pygame.time.wait(1000)
             self.print_time()
         pygame.event.post(pygame.event.Event(pygame.USEREVENT))
+        sys.exit()
 
     def print_time(self):
         print(self.time_left)
+
+
+class Item(Drawable):
+    def __init__(self, board, width=10, height=10, color=(0, 0, 255)):
+        self.width = width
+        self.height = height
+        self.x = random.randrange(int(board.surface.get_width(
+        )*0.25), int(board.surface.get_width() - self.width - board.surface.get_width()*0.0484))
+        self.y = random.randrange(int(board.surface.get_height(
+        )*0.04), int(board.surface.get_height() - self.height-board.surface.get_height()*0.032))
+
+        super().__init__(width, height, self.x, self.y, color)
+        self.surface.fill(color)
 
 
 class Game():
@@ -98,14 +116,16 @@ class Game():
         self.hero2 = Hero(width=20, height=20, x=width//3,
                           y=height//3, color=(255, 0, 0))
         self.timer = Timer()
+        self.tab = []
 
     def run(self):
 
         threads = [
             th.Thread(target=self.timer.count_down),
+            th.Thread(target=self.spawn_items),
         ]
 
-        # Func1 and Func2 run in separate threads
+        # Run in separate threads
         for thread in threads:
             thread.start()
 
@@ -114,9 +134,10 @@ class Game():
                 self.background,
                 self.hero1,
                 self.hero2,
+                *self.tab,
             )
 
-        # Wait until both Func1 and Func2 have finished
+        # Wait until both threads have finished
         for thread in threads:
             thread.join()
         pygame.quit()
@@ -146,6 +167,12 @@ class Game():
             self.hero2.move(x=1, y=0, board=self.board)
         if key_input[pygame.K_s]:
             self.hero2.move(x=0, y=1, board=self.board)
+
+    def spawn_items(self):
+        while True:
+            item = Item(self.board)
+            self.tab.append(item)
+            pygame.time.wait(10000)
 
 
 if __name__ == "__main__":
