@@ -90,7 +90,7 @@ class Timer():
         sys.exit()
 
     def draw_on(self, surface):
-        text = self.font.render(self.time_left, True, (0, 0, 0))
+        text = self.font.render(f"{self.time_left}", True, (0, 0, 0))
         surface.blit(text, (10, 10))
 
 
