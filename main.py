@@ -76,52 +76,22 @@ class Background:
         surface.blit(self.image, self.rect)
 
 
-class Text:
-    def __init__(self, font_size=30):
-        self.font = pygame.font.SysFont(None, font_size)
-        self.text = ' '
-        self.color = (255, 255, 255)
-        self.rect = None
-
-    def set_text(self, text):
-        self.text = text
-        self.render()
-
-    def set_color(self, color):
-        self.color = color
-        self.render()
-
-    def render(self):
-        self.rect = self.font.render(self.text, True, self.color)
-
-    def draw_on(self, surface):
-        if self.rect:
-            surface.blit(self.rect, (0, 0))
-
-    def show_message(self, message, board, duration=30):
-        self.set_text(message)
-        self.render()
-        # Add a delay to show the message for `duration` seconds
-        time.sleep(duration)
-        # Clear the text to remove it from the screen
-        self.set_text('')
-
-
-class Timer:
+class Timer():
     def __init__(self, game_time=10):
         self.clock = pygame.time.Clock()
         self.time_left = game_time
+        self.font = pygame.font.Font(None, 36)
 
     def count_down(self):
         while self.time_left > 0:
             self.time_left -= 1
             pygame.time.wait(1000)
-            self.print_time()
         pygame.event.post(pygame.event.Event(pygame.USEREVENT))
         sys.exit()
 
-    def print_time(self):
-        print(self.time_left)
+    def draw_on(self, surface):
+        text = self.font.render(self.time_left, True, (0, 0, 0))
+        surface.blit(text, (10, 10))
 
 
 class Item(Drawable):
@@ -147,7 +117,6 @@ class Game():
         self.hero2 = Hero(width=20, height=20, x=width//3,
                           y=height//3, color=(255, 0, 0))
         self.timer = Timer()
-        self.text = Text()
         self.tab = []
 
     def run(self):
@@ -155,7 +124,6 @@ class Game():
         threads = [
             th.Thread(target=self.timer.count_down),
             th.Thread(target=self.spawn_items),
-            th.Thread(target=self.text.show_message, args=("Hello, world!",self.board)),
         ]
 
         # Run in separate threads
@@ -167,7 +135,7 @@ class Game():
                 self.background,
                 self.hero1,
                 self.hero2,
-                self.text,
+                self.timer,
                 *self.tab,
             )
 
