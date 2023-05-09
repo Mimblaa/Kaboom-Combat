@@ -186,6 +186,24 @@ class Bomb(Drawable):
         self.surface.blit(self.image, (0, 0))
 
 
+
+
+
+class Cube(Drawable):
+    def __init__(self, board, x, y, width=50, height=50, color=(255, 255, 0)):
+        super().__init__(width, height, x, y, color)
+        paths = ['images/cheese_brick.png', 'images/dirt_brick.png', 'images/sweet_brick.png', 'images/ice_cube.png']
+        image_file=paths[random.randrange(len(paths))]
+        self.load_image(image_file)
+
+    def check_collision(self, rect):
+        return self.rect.colliderect(rect)
+
+    def load_image(self, image_file):
+        self.image = pygame.image.load(image_file)
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.surface.blit(self.image, (0, 0))
+
 class Game:
     def __init__(self, width, height):
         pygame.init()
@@ -193,8 +211,7 @@ class Game:
             'images/background.png',  width, height)
         self.board = Board(width, height, background=self.background)
         self.hero1 = Hero(width=20, height=20, x=width/2, y=height/2, name="Player 1")
-        self.hero2 = Hero(width=20, height=20, x=width//3,
-                          y=height//3, color=(255, 0, 0), name="Player 2")
+        self.hero2 = Hero(width=20, height=20, x=width//3, y=height//3, color=(255, 0, 0), name="Player 2")
         hearts1 = [Heart(width=width, height=height, live_type=True, player=1, number=i) for i in range(1, 4)]
         hearts2 = [Heart(width=width, height=height, live_type=True, player=2, number=i) for i in range(1, 4)]
         self.hero1.set_hearts(hearts1)
@@ -202,6 +219,7 @@ class Game:
         self.timer = Timer(width, 80)
         self.tab = []
         self.bombs = []
+        self.cubes = []
 
     def run(self):
 
@@ -209,6 +227,8 @@ class Game:
             th.Thread(target=self.timer.count_down),
             th.Thread(target=self.spawn_items),
             th.Thread(target=self.spawn_bombs),
+            th.Thread(target=self.spawn_cubes)
+
         ]
 
         # Run in separate threads
@@ -216,16 +236,15 @@ class Game:
             thread.start()
 
         while not self.handle_events():
-            self.bomb_colision()  # Sprawdzanie kolizji dla każdej bomby
-
-
-            self.board.draw(
+           self.bomb_colision()  # Sprawdzanie kolizji dla każdej bomby
+           self.board.draw(
                 self.background,
                 self.hero1,
                 self.hero2,
                 self.timer,
                 *self.tab,
                 *self.bombs,
+                *self.cubes,
             )
 
         # Wait until both threads have finished
@@ -240,28 +259,40 @@ class Game:
                 pygame.quit()
                 return True
 
-        key_input = pygame.key.get_pressed()
-        if key_input[pygame.K_LEFT]:
-            self.hero1.move(x=-1, y=0, board=self.board)
-        if key_input[pygame.K_UP]:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP]:
             self.hero1.move(x=0, y=-1, board=self.board)
-        if key_input[pygame.K_RIGHT]:
-            self.hero1.move(x=1, y=0, board=self.board)
-        if key_input[pygame.K_DOWN]:
+            if self.check_collision(self.hero1):  # Sprawdzanie kolizji z kostkami dla hero1
+                self.hero1.move(x=0, y=1, board=self.board)
+        if keys[pygame.K_DOWN]:
             self.hero1.move(x=0, y=1, board=self.board)
-        if key_input[pygame.K_b]:
-            self.hero1.remove_live()
+            if self.check_collision(self.hero1):  # Sprawdzanie kolizji z kostkami dla hero1
+                self.hero1.move(x=0, y=-1, board=self.board)
+        if keys[pygame.K_LEFT]:
+            self.hero1.move(x=-1, y=0, board=self.board)
+            if self.check_collision(self.hero1):  # Sprawdzanie kolizji z kostkami dla hero1
+                self.hero1.move(x=1, y=0, board=self.board)
+        if keys[pygame.K_RIGHT]:
+            self.hero1.move(x=1, y=0, board=self.board)
+            if self.check_collision(self.hero1):  # Sprawdzanie kolizji z kostkami dla hero1
+                self.hero1.move(x=-1, y=0, board=self.board)
 
-        if key_input[pygame.K_a]:
-            self.hero2.move(x=-1, y=0, board=self.board)
-        if key_input[pygame.K_w]:
+        if keys[pygame.K_w]:
             self.hero2.move(x=0, y=-1, board=self.board)
-        if key_input[pygame.K_d]:
-            self.hero2.move(x=1, y=0, board=self.board)
-        if key_input[pygame.K_s]:
+            if self.check_collision(self.hero2):  # Sprawdzanie kolizji z kostkami dla hero2
+                self.hero2.move(x=0, y=1, board=self.board)
+        if keys[pygame.K_s]:
             self.hero2.move(x=0, y=1, board=self.board)
-        if key_input[pygame.K_n]:
-            self.hero2.remove_live()
+            if self.check_collision(self.hero2):  # Sprawdzanie kolizji z kostkami dla hero2
+                self.hero2.move(x=0, y=-1, board=self.board)
+        if keys[pygame.K_a]:
+            self.hero2.move(x=-1, y=0, board=self.board)
+            if self.check_collision(self.hero2):  # Sprawdzanie kolizji z kostkami dla hero2
+                self.hero2.move(x=1, y=0, board=self.board)
+        if keys[pygame.K_d]:
+            self.hero2.move(x=1, y=0, board=self.board)
+            if self.check_collision(self.hero2):  # Sprawdzanie kolizji z kostkami dla hero2
+                self.hero2.move(x=-1, y=0, board=self.board)
 
     #check colision between hero and bombs
     def bomb_colision(self):
@@ -291,6 +322,21 @@ class Game:
             self.bombs.append(bomb)
             pygame.time.wait(10000)
 
+    def spawn_cubes(self):
+        while True:
+            x = random.randrange(int(self.board.surface.get_width() * 0.25),
+                                 int(self.board.surface.get_width() - 20 - self.board.surface.get_width() * 0.0484))
+            y = random.randrange(int(self.board.surface.get_height() * 0.04),
+                                 int(self.board.surface.get_height() - 20 - self.board.surface.get_height() * 0.032))
+            cube = Cube(self.board, x, y)  # Tworzenie nowej kostki
+            self.cubes.append(cube)  # Dodanie kostki do listy
+            pygame.time.wait(5000)  # Oczekiwanie przez 5 sekund przed wygenerowaniem kolejnej kostki
+
+    def check_collision(self, hero):
+        for cube in self.cubes:
+            if hero.rect.colliderect(cube.rect):
+                return True
+        return False
 
 if __name__ == "__main__":
     game = Game(1200, 600)
