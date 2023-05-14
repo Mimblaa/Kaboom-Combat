@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 import time
 import random
 import sys
+import math
 
 
 class Board:
@@ -156,27 +157,29 @@ class Timer():
 
 
 class Item(Drawable):
-    def __init__(self, board, width=10, height=10, color=(0, 0, 255)):
+    def __init__(self, board, width=10, height=10, color=(0, 0, 255), i=0, j=0):
         self.width = width
         self.height = height
-        self.x = random.randrange(int(board.surface.get_width(
-        )*0.25), int(board.surface.get_width() - self.width - board.surface.get_width()*0.0484))
-        self.y = random.randrange(int(board.surface.get_height(
-        )*0.04), int(board.surface.get_height() - self.height-board.surface.get_height()*0.032))
+        rows = len(cord_list)
+        columns = len(cord_list[0])
+        self.x = math.ceil((board.surface.get_width() * 0.25) + math.ceil((board.surface.get_width()* 0.7 / rows) * i))
+        self.y = math.ceil((board.surface.get_height() * 0.04) + math.ceil((board.surface.get_height()* 0.9265 / columns) * j))
 
         super().__init__(width, height, self.x, self.y, color)
         self.surface.fill(color)
 
 
 class Bomb(Drawable):
-    def __init__(self, board, image_file, width=30, height=30):
+    def __init__(self, board, image_file, width=30, height=30, i=0, j=0):
         self.width = width
         self.height = height
-        self.x = random.randrange(int(board.surface.get_width() * 0.25),
-                                  int(board.surface.get_width() - self.width - board.surface.get_width() * 0.0484))
-        self.y = random.randrange(int(board.surface.get_height() * 0.04),
-                                  int(board.surface.get_height() - self.height - board.surface.get_height() * 0.032))
-
+        rows = len(cord_list)
+        columns = len(cord_list[0])
+        print(rows)
+        print(columns)
+        self.x = math.ceil((board.surface.get_width() * 0.25) + math.ceil((board.surface.get_width() * 0.7 / rows) * i))
+        self.y = math.ceil(
+            (board.surface.get_height() * 0.04) + math.ceil((board.surface.get_height() * 0.9265 / columns) * j))
         super().__init__(width, height, self.x, self.y)
         self.load_image(image_file)
 
@@ -184,8 +187,6 @@ class Bomb(Drawable):
         self.image = pygame.image.load(image_file)
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
         self.surface.blit(self.image, (0, 0))
-
-
 
 
 
@@ -204,7 +205,27 @@ class Cube(Drawable):
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
         self.surface.blit(self.image, (0, 0))
 
+
+class Score:
+    def __init__(self, width, height):
+        self.score = 0
+        self.font = pygame.font.SysFont('monospace', int(width * 0.045))
+
+    def increase_score(self, points):
+        self.score += points
+
+    def reset_score(self):
+        self.score = 0
+
+    def draw_on(self, surface):
+        text = self.font.render("Score: " + str(self.score), True, (0, 0, 0))
+        surface.blit(text, (surface.get_width() / 1.5, surface.get_height() / 9))
+
+lock = th.Lock()
+cord_list = [[0 for j in range(20)] for i in range(16)]
+
 class Game:
+
     def __init__(self, width, height):
         pygame.init()
         self.background = Background(
@@ -220,15 +241,18 @@ class Game:
         self.tab = []
         self.bombs = []
         self.cubes = []
+        self.score1 = Score(width, height)
+        self.score2 = Score(width/2, height/2)
 
     def run(self):
+
+
 
         threads = [
             th.Thread(target=self.timer.count_down),
             th.Thread(target=self.spawn_items),
             th.Thread(target=self.spawn_bombs),
-            th.Thread(target=self.spawn_cubes)
-
+            th.Thread(target=self.spawn_cubes),
         ]
 
         # Run in separate threads
@@ -245,6 +269,8 @@ class Game:
                 *self.tab,
                 *self.bombs,
                 *self.cubes,
+                self.score1,
+                self.score2
             )
 
         # Wait until both threads have finished
@@ -277,6 +303,7 @@ class Game:
             if self.check_collision(self.hero1):  # Sprawdzanie kolizji z kostkami dla hero1
                 self.hero1.move(x=-1, y=0, board=self.board)
 
+
         if keys[pygame.K_w]:
             self.hero2.move(x=0, y=-1, board=self.board)
             if self.check_collision(self.hero2):  # Sprawdzanie kolizji z kostkami dla hero2
@@ -301,6 +328,7 @@ class Game:
                 self.hero1.remove_live()
                 self.bombs.remove(bomb)
                 del bomb
+                self.score2.increase_score(10)  # Zwiększenie punktacji o 10
                 break  # Dodajemy break, aby przerwać pętlę po znalezieniu kolizji
 
         for bomb in self.bombs:
@@ -308,28 +336,63 @@ class Game:
                 self.hero2.remove_live()
                 self.bombs.remove(bomb)
                 del bomb
-                break  # Dodajemy break, aby przerwać pętlę po znalezieniu kolizji
+
+                self.score1.increase_score(10)  # Zwiększenie punktacji o 10
+                break
 
     def spawn_items(self):
+        global cord_list
         while True:
-            item = Item(self.board)
-            self.tab.append(item)
-            pygame.time.wait(10000)
+            i = random.randrange(len(cord_list))
+            j = random.randrange(len(cord_list[0]))
+            lock.acquire()
+            if cord_list[i][j] == 0:
+                cord_list[i][j] = 1
+                width = math.floor((self.board.surface.get_width() * 0.7) / 20)
+                height = math.floor((self.board.surface.get_height() * 0.9265) / 16)
+                item = Item(self.board, i=i, j=j,width=width, height=height)
+                self.tab.append(item)
+
+            lock.release()
+            pygame.time.wait(5000)
+
 
     def spawn_bombs(self):
+        global cord_list
         while True:
-            bomb = Bomb(self.board, image_file='images/bomb.png')
-            self.bombs.append(bomb)
-            pygame.time.wait(10000)
+            i = random.randrange(len(cord_list))
+            j = random.randrange(len(cord_list[0]))
+            lock.acquire()
+            if cord_list[i][j] == 0:
+                cord_list[i][j] = 1
+                width = math.floor((self.board.surface.get_width() * 0.7) / 20)
+                height = math.floor((self.board.surface.get_height() * 0.9265) / 16)
+                bomb = Bomb(self.board, image_file='images/bomb.png', i=i, j=j,width=width, height=height)
+                self.bombs.append(bomb)
+
+            lock.release()
+            pygame.time.wait(5000)
 
     def spawn_cubes(self):
+        global cord_list
         while True:
-            x = random.randrange(int(self.board.surface.get_width() * 0.25),
-                                 int(self.board.surface.get_width() - 20 - self.board.surface.get_width() * 0.0484))
-            y = random.randrange(int(self.board.surface.get_height() * 0.04),
-                                 int(self.board.surface.get_height() - 20 - self.board.surface.get_height() * 0.032))
-            cube = Cube(self.board, x, y)  # Tworzenie nowej kostki
-            self.cubes.append(cube)  # Dodanie kostki do listy
+            i = random.randrange(len(cord_list))
+            j = random.randrange(len(cord_list[0]))
+            lock.acquire()
+            if cord_list[i][j] == 0:
+                cord_list[i][j] = 1
+                rows = len(cord_list)
+                columns = len(cord_list[0])
+                x = math.ceil(
+                    (self.board.surface.get_width() * 0.25) + math.ceil((self.board.surface.get_width() * 0.7 / rows) * i))
+                y = math.ceil((self.board.surface.get_height() * 0.04) + math.ceil(
+                    (self.board.surface.get_height() * 0.9265 / columns) * j))
+                width=math.floor((self.board.surface.get_width()* 0.7)/20)
+                height=math.floor((self.board.surface.get_height()*0.9265)/16)
+                cube = Cube(self.board, x, y, width, height)  # Tworzenie nowej kostki
+                self.cubes.append(cube)  # Dodanie kostki do listy
+
+            lock.release()
             pygame.time.wait(5000)  # Oczekiwanie przez 5 sekund przed wygenerowaniem kolejnej kostki
 
     def check_collision(self, hero):
@@ -337,6 +400,8 @@ class Game:
             if hero.rect.colliderect(cube.rect):
                 return True
         return False
+
+
 
 if __name__ == "__main__":
     game = Game(1200, 600)
