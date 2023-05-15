@@ -3,6 +3,8 @@ import pygame.locals
 import random
 import sys
 import math
+from main import *
+
 
 class Drawable:
 
@@ -30,9 +32,9 @@ class Hero(Drawable):
 
     def load_image(self, image_file):
         self.image = pygame.image.load(image_file)
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.image = pygame.transform.scale(
+            self.image, (self.width, self.height))
         self.surface.blit(self.image, (0, 0))
-
 
     def set_hearts(self, hearts):
         self.hearts = hearts
@@ -95,21 +97,21 @@ class Heart:
 
 
 class Timer():
-    def __init__(self, width,game_time=10):
+    def __init__(self, width, game_time=10):
         self.clock = pygame.time.Clock()
         self.time_left = game_time
         self.clock_format = ""
-        #calculate font size based on screen width
+        # calculate font size based on screen width
         self.font = pygame.font.SysFont('monospace', int(width*0.045))
 
     def count_down(self):
         while self.time_left > 0:
-            self.time_left -=1
+            self.time_left -= 1
             # Divide by 60 to get total minutes
-            minutes = self.time_left// 60
+            minutes = self.time_left // 60
             # Use modulus (remainder) to get seconds
             seconds = self.time_left % 60
-            self.clock_format ="{0:02}:{1:02}".format(minutes, seconds)
+            self.clock_format = "{0:02}:{1:02}".format(minutes, seconds)
             pygame.time.wait(1000)
 
         pygame.event.post(pygame.event.Event(pygame.USEREVENT))
@@ -126,8 +128,10 @@ class Item(Drawable):
         self.height = height
         rows = len(cord_list)
         columns = len(cord_list[0])
-        self.x = math.ceil((board.surface.get_width() * 0.25) + math.ceil((board.surface.get_width()* 0.7 / columns) * i))
-        self.y = math.ceil((board.surface.get_height() * 0.04) + math.ceil((board.surface.get_height()* 0.9265 / rows) * j))
+        self.x = math.ceil((board.surface.get_width() * 0.25) +
+                           math.ceil((board.surface.get_width() * 0.7 / columns) * i))
+        self.y = math.ceil((board.surface.get_height() * 0.04) +
+                           math.ceil((board.surface.get_height() * 0.9265 / rows) * j))
 
         super().__init__(width, height, self.x, self.y, color)
         self.surface.fill(color)
@@ -139,7 +143,8 @@ class Bomb(Drawable):
         self.height = height
         rows = len(cord_list)
         columns = len(cord_list[0])
-        self.x = math.ceil((board.surface.get_width() * 0.25) + math.ceil((board.surface.get_width() * 0.7 / columns) * i))
+        self.x = math.ceil((board.surface.get_width() * 0.25) +
+                           math.ceil((board.surface.get_width() * 0.7 / columns) * i))
         self.y = math.ceil(
             (board.surface.get_height() * 0.04) + math.ceil((board.surface.get_height() * 0.9265 / rows) * j))
         super().__init__(width, height, self.x, self.y)
@@ -147,15 +152,17 @@ class Bomb(Drawable):
 
     def load_image(self, image_file):
         self.image = pygame.image.load(image_file)
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.image = pygame.transform.scale(
+            self.image, (self.width, self.height))
         self.surface.blit(self.image, (0, 0))
 
 
 class Cube(Drawable):
     def __init__(self, board, x, y, width=50, height=50, color=(255, 255, 0)):
         super().__init__(width, height, x, y, color)
-        paths = ['images/cheese_brick.png', 'images/dirt_brick.png', 'images/sweet_brick.png', 'images/ice_cube.png']
-        image_file=paths[random.randrange(len(paths))]
+        paths = ['images/cheese_brick.png', 'images/dirt_brick.png',
+                 'images/sweet_brick.png', 'images/ice_cube.png']
+        image_file = paths[random.randrange(len(paths))]
         self.load_image(image_file)
 
     def check_collision(self, rect):
@@ -163,7 +170,8 @@ class Cube(Drawable):
 
     def load_image(self, image_file):
         self.image = pygame.image.load(image_file)
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.image = pygame.transform.scale(
+            self.image, (self.width, self.height))
         self.surface.blit(self.image, (0, 0))
 
 
@@ -173,7 +181,7 @@ class Profile(Drawable):
         self.height = height
         self.x_pos = width * 0.0756
         self.y_pos = height * 0.394 + (player - 1) * height * 0.308
-        self.player=player
+        self.player = player
 
         self.update_image()
 
@@ -192,6 +200,7 @@ class Profile(Drawable):
 
     def draw_on(self, surface):
         surface.blit(self.image, self.rect)
+
 
 class Score:
     def __init__(self, width, height, player):

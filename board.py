@@ -36,5 +36,6 @@ class Background:
         self.height = height
 
     def draw_on(self, surface):
-        scaled_image = pygame.transform.scale(self.image, (self.width, self.height))
+        scaled_image = pygame.transform.scale(
+            self.image, (self.width, self.height))
         surface.blit(scaled_image, (0, 0))
