@@ -21,7 +21,7 @@ class Drawable:
 
 
 class Hero(Drawable):
-    def __init__(self, image_file, width, height, x, y, color=(0, 255, 0), lives=3, name="Player"):
+    def __init__(self, image_file, width, height, x, y, color=(0, 255, 0), lives=3, name="Player",shield=0):
         super().__init__(width, height, x, y, color)
         self.width = width
         self.height = height
@@ -29,6 +29,7 @@ class Hero(Drawable):
         self.name = name
         self.hearts = []
         self.load_image(image_file)
+        self.shield=shield
 
     def load_image(self, image_file):
         self.image = pygame.image.load(image_file)
@@ -61,13 +62,27 @@ class Hero(Drawable):
         self.rect.x += x
         self.rect.y += y
 
+    def activate_shield(self):
+        self.shield=1
+
+    def deactivate_shield(self):
+        self.shield=0
+
     def remove_live(self):
-        if self.lives > 1:
-            self.lives -= 1
-        elif self.lives == 1:
-            self.lives -= 1
-            print("Player " + self.name + " is dead")
-        self.update_hearts()
+        if self.shield==0:
+            if self.lives > 1:
+                self.lives -= 1
+            elif self.lives == 1:
+                self.lives -= 1
+                print("Player " + self.name + " is dead")
+            self.update_hearts()
+        else:
+            self.deactivate_shield()
+
+    def add_live(self):
+        if self.lives < 3:
+            self.lives += 1
+            self.update_hearts()
 
 
 class Heart:
@@ -94,6 +109,33 @@ class Heart:
 
     def draw_on(self, surface):
         surface.blit(self.image, self.rect)
+
+class Item(Drawable):
+    def __init__(self, board,item_type, width=30, height=30, i=0, j=0):
+        self.width = width
+        self.height = height
+        rows = len(cord_list)
+        columns = len(cord_list[0])
+        self.item_type=item_type
+        self.x = math.ceil((board.surface.get_width() * 0.25) +
+                           math.ceil((board.surface.get_width() * 0.7 / columns) * i))
+        self.y = math.ceil(
+            (board.surface.get_height() * 0.04) + math.ceil((board.surface.get_height() * 0.9265 / rows) * j))
+        super().__init__(width, height, self.x, self.y)
+        image_file = {
+            0: 'images/gold_heart.png',
+            1: 'images/shield.png',
+        }
+        self.load_image(image_file.get(item_type))
+
+    def load_image(self, image_file):
+        self.image = pygame.image.load(image_file)
+        self.image = pygame.transform.scale(
+            self.image, (self.width, self.height))
+        self.surface.blit(self.image, (0, 0))
+
+    def get_type(self):
+        return self.item_type
 
 
 class Timer():
@@ -122,19 +164,7 @@ class Timer():
         surface.blit(text, (surface.get_width()/21, surface.get_height()/9))
 
 
-class Item(Drawable):
-    def __init__(self, board, width=10, height=10, color=(0, 0, 255), i=0, j=0):
-        self.width = width
-        self.height = height
-        rows = len(cord_list)
-        columns = len(cord_list[0])
-        self.x = math.ceil((board.surface.get_width() * 0.25) +
-                           math.ceil((board.surface.get_width() * 0.7 / columns) * i))
-        self.y = math.ceil((board.surface.get_height() * 0.04) +
-                           math.ceil((board.surface.get_height() * 0.9265 / rows) * j))
 
-        super().__init__(width, height, self.x, self.y, color)
-        self.surface.fill(color)
 
 
 class Bomb(Drawable):
@@ -200,6 +230,41 @@ class Profile(Drawable):
 
     def draw_on(self, surface):
         surface.blit(self.image, self.rect)
+
+class Profile_power_ups(Drawable):
+    def __init__(self, width, height, player,power_up):
+        self.width = width
+        self.height = height
+        self.x_pos = width * 0.1546
+        self.y_pos = height * 0.396 + (player - 1) * height * 0.308
+        self.player = player
+        self.power_up=power_up
+
+        self.update_image()
+
+    def update_image(self):
+        if self.power_up == 1:
+            image_file = 'images/shield.png'
+        else:
+            image_file = 'images/blank.png'
+
+        self.image = pygame.image.load(image_file)
+        self.image = pygame.transform.scale(
+            self.image, (int(self.width * 0.0278), int(self.height * 0.0448)))
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x_pos
+        self.rect.y = self.y_pos
+
+    def draw_on(self, surface):
+        surface.blit(self.image, self.rect)
+
+    def add_shield(self):
+        self.power_up=1
+        self.update_image()
+
+    def remove_shield(self):
+        self.power_up=0
+        self.update_image()
 
 
 class Score:

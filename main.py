@@ -30,13 +30,15 @@ class Game:
         self.hero1.set_hearts(hearts1)
         self.hero2.set_hearts(hearts2)
         self.timer = Timer(width, 80)
-        self.tab = []
+        self.items=[]
         self.bombs = []
         self.cubes = []
         self.score1 = Score(width, height, 1)
         self.score2 = Score(width, height, 2)
         self.prof1 = Profile(width, height, 1)
         self.prof2 = Profile(width, height, 2)
+        self.profitems1 = Profile_power_ups(width, height, 1,0)
+        self.profitems2 = Profile_power_ups(width, height, 2,0)
 
     def run(self):
 
@@ -53,18 +55,21 @@ class Game:
 
         while not self.handle_events():
             self.bomb_colision()  # Sprawdzanie kolizji dla każdej bomby
+            self.item_colision()
             self.board.draw(
                 self.background,
                 self.hero1,
                 self.hero2,
                 self.timer,
-                *self.tab,
+                *self.items,
                 *self.bombs,
                 *self.cubes,
                 self.score1,
                 self.score2,
                 self.prof1,
                 self.prof2,
+                self.profitems1,
+                self.profitems2,
             )
 
         # Wait until both threads have finished
@@ -128,6 +133,7 @@ class Game:
             if self.hero1.rect.colliderect(bomb.rect):
                 self.hero1.remove_live()
                 self.bombs.remove(bomb)
+                self.profitems1.remove_shield()
                 del bomb
                 self.score2.increase_score(10)  # Zwiększenie punktacji o 10
                 break  # Dodajemy break, aby przerwać pętlę po znalezieniu kolizji
@@ -136,9 +142,34 @@ class Game:
             if self.hero2.rect.colliderect(bomb.rect):
                 self.hero2.remove_live()
                 self.bombs.remove(bomb)
+                self.profitems2.remove_shield()
                 del bomb
 
                 self.score1.increase_score(10)  # Zwiększenie punktacji o 10
+                break
+
+    # check colision between hero and bombs
+    def item_colision(self):
+        for item in self.items:
+            if self.hero1.rect.colliderect(item.rect):
+                self.items.remove(item)
+                if item.item_type==0:   #heart
+                    self.hero1.add_live()
+                if item.item_type == 1: #shield
+                    self.hero1.activate_shield()
+                    self.profitems1.add_shield()
+                del item
+                break
+
+        for item in self.items:
+            if self.hero2.rect.colliderect(item.rect):
+                self.items.remove(item)
+                if item.item_type==0:   #heart
+                    self.hero2.add_live()
+                if item.item_type == 1: #shield
+                    self.hero2.activate_shield()
+                    self.profitems2.add_shield()
+                del item
                 break
 
     def spawn_items(self):
@@ -150,10 +181,9 @@ class Game:
             if cord_list[i][j] == 0:
                 cord_list[i][j] = 1
                 width = math.floor((self.board.surface.get_width() * 0.7) / 20)
-                height = math.floor(
-                    (self.board.surface.get_height() * 0.9265) / 16)
-                item = Item(self.board, i=i, j=j, width=width, height=height)
-                self.tab.append(item)
+                height = math.floor((self.board.surface.get_height() * 0.9265) / 16)
+                item = Item(self.board,item_type= random.randrange(2), i=i, j=j,width=width,height=height )
+                self.items.append(item)
 
             lock.release()
             pygame.time.wait(5000)
