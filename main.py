@@ -210,16 +210,17 @@ class Game:
         global cord_list
         while True:
             i = random.randrange(len(cord_list))
-            j = random.randrange(len(cord_list[0])-1)
+            j = random.randrange(len(cord_list[0]))
+
             lock.acquire()
             if cord_list[i][j] == 0:
                 cord_list[i][j] = 1
                 rows = len(cord_list)
                 columns = len(cord_list[0])
                 x = math.ceil(
-                    (self.board.surface.get_width() * 0.25) + math.ceil((self.board.surface.get_width() * 0.7 / columns) * i))
+                    (self.board.surface.get_width() * 0.25) + math.ceil((self.board.surface.get_width() * 0.7 / columns) * j))
                 y = math.ceil((self.board.surface.get_height() * 0.04) + math.ceil(
-                    (self.board.surface.get_height() * 0.9265 / rows) * j))
+                    (self.board.surface.get_height() * 0.9265 / rows) * i))
                 width = math.floor((self.board.surface.get_width() * 0.7)/20)
                 height = math.floor(
                     (self.board.surface.get_height()*0.9265)/16)
