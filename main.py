@@ -45,7 +45,6 @@ class Game:
         threads = [
             th.Thread(target=self.timer.count_down),
             th.Thread(target=self.spawn_items),
-            th.Thread(target=self.spawn_bombs),
             th.Thread(target=self.spawn_cubes),
         ]
 
@@ -105,6 +104,10 @@ class Game:
             # Sprawdzanie kolizji z kostkami dla hero1
             if self.check_collision(self.hero1):
                 self.hero1.move(x=-1, y=0, board=self.board)
+        if keys[pygame.K_b]:
+            if self.hero1.bomb == 1:
+                self.hero1.bomb = 0
+                self.spawn_bombs(self.hero1.rect.x, self.hero1.rect.y,1)
 
         if keys[pygame.K_w]:
             self.hero2.move(x=0, y=-1, board=self.board)
@@ -126,29 +129,43 @@ class Game:
             # Sprawdzanie kolizji z kostkami dla hero2
             if self.check_collision(self.hero2):
                 self.hero2.move(x=-1, y=0, board=self.board)
+        if keys[pygame.K_n]:
+            if self.hero2.bomb == 1:
+                self.hero2.bomb = 0
+                self.spawn_bombs(self.hero2.rect.x,self.hero2.rect.y,2)
+
 
     # check colision between hero and bombs
     def bomb_colision(self):
         for bomb in self.bombs:
-            if self.hero1.rect.colliderect(bomb.rect):
+            if self.hero1.rect.colliderect(bomb.rect) and bomb.timer==0:
                 self.hero1.remove_live()
                 self.bombs.remove(bomb)
                 self.profitems1.remove_shield()
+                if bomb.player==1:
+                    self.hero1.bomb=1
+                elif bomb.player==2:
+                    self.hero2.bomb=1
                 del bomb
                 self.score2.increase_score(10)  # Zwiększenie punktacji o 10
                 break  # Dodajemy break, aby przerwać pętlę po znalezieniu kolizji
 
-        for bomb in self.bombs:
-            if self.hero2.rect.colliderect(bomb.rect):
+            if self.hero2.rect.colliderect(bomb.rect) and bomb.timer==0:
                 self.hero2.remove_live()
                 self.bombs.remove(bomb)
                 self.profitems2.remove_shield()
+                if bomb.player==1:
+                    self.hero1.bomb=1
+                elif bomb.player==2:
+                    self.hero2.bomb=1
                 del bomb
 
                 self.score1.increase_score(10)  # Zwiększenie punktacji o 10
                 break
 
-    # check colision between hero and bombs
+            bomb.bomb_delay()
+
+    # check colision between hero and items
     def item_colision(self):
         for item in self.items:
             if self.hero1.rect.colliderect(item.rect):
@@ -176,35 +193,35 @@ class Game:
         global cord_list
         while True:
             i = random.randrange(len(cord_list))
-            j = random.randrange(len(cord_list[0])-1)
+            j = random.randrange(len(cord_list[0]))
             lock.acquire()
             if cord_list[i][j] == 0:
                 cord_list[i][j] = 1
                 width = math.floor((self.board.surface.get_width() * 0.7) / 20)
                 height = math.floor((self.board.surface.get_height() * 0.9265) / 16)
-                item = Item(self.board,item_type= random.randrange(2), i=i, j=j,width=width,height=height )
+                item = Item(self.board,item_type= random.randrange(2), i=j, j=i,width=width,height=height )
                 self.items.append(item)
 
             lock.release()
-            pygame.time.wait(5000)
+            pygame.time.wait(1000)
 
-    def spawn_bombs(self):
+    def spawn_bombs(self,x,y,player):
         global cord_list
-        while True:
-            i = random.randrange(len(cord_list))
-            j = random.randrange(len(cord_list[0])-1)
-            lock.acquire()
-            if cord_list[i][j] == 0:
-                cord_list[i][j] = 1
-                width = math.floor((self.board.surface.get_width() * 0.7) / 20)
-                height = math.floor(
-                    (self.board.surface.get_height() * 0.9265) / 16)
-                bomb = Bomb(self.board, image_file='images/bomb.png',
-                            i=i, j=j, width=width, height=height)
-                self.bombs.append(bomb)
+        i = math.ceil((x-self.board.surface.get_width()*0.25)/((self.board.surface.get_width()*0.7)/len(cord_list[0])))
+        j = math.ceil((y-self.board.surface.get_height()*0.04)/((self.board.surface.get_height()*0.9265)/len(cord_list)))
 
-            lock.release()
-            pygame.time.wait(5000)
+        lock.acquire()
+
+        if cord_list[i][j] == 0:
+            cord_list[i][j] = 1
+            width = math.floor((self.board.surface.get_width() * 0.7) / 20)
+            height = math.floor(
+                (self.board.surface.get_height() * 0.9265) / 16)
+            bomb = Bomb(image_file='images/bomb.png',
+                        x=x, y=y, width=width, height=height,player=player)
+            self.bombs.append(bomb)
+
+        lock.release()
 
     def spawn_cubes(self):
         global cord_list
@@ -228,7 +245,7 @@ class Game:
                 self.cubes.append(cube)
 
             lock.release()
-            pygame.time.wait(5000)
+            pygame.time.wait(1000)
 
     def check_collision(self, hero):
         for cube in self.cubes:

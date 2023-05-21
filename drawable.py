@@ -21,7 +21,7 @@ class Drawable:
 
 
 class Hero(Drawable):
-    def __init__(self, image_file, width, height, x, y, color=(0, 255, 0), lives=3, name="Player",shield=0):
+    def __init__(self, image_file, width, height, x, y, color=(0, 255, 0), lives=3, name="Player",shield=0,bomb=1):
         super().__init__(width, height, x, y, color)
         self.width = width
         self.height = height
@@ -30,6 +30,7 @@ class Hero(Drawable):
         self.hearts = []
         self.load_image(image_file)
         self.shield=shield
+        self.bomb=bomb
 
     def load_image(self, image_file):
         self.image = pygame.image.load(image_file)
@@ -168,17 +169,15 @@ class Timer():
 
 
 class Bomb(Drawable):
-    def __init__(self, board, image_file, width=30, height=30, i=0, j=0):
+    def __init__(self, image_file,player, timer=50,width=30, height=30, x=0,y=0):
         self.width = width
         self.height = height
-        rows = len(cord_list)
-        columns = len(cord_list[0])
-        self.x = math.ceil((board.surface.get_width() * 0.25) +
-                           math.ceil((board.surface.get_width() * 0.7 / columns) * i))
-        self.y = math.ceil(
-            (board.surface.get_height() * 0.04) + math.ceil((board.surface.get_height() * 0.9265 / rows) * j))
+        self.x = x
+        self.y = y
         super().__init__(width, height, self.x, self.y)
         self.load_image(image_file)
+        self.timer=timer
+        self.player=player
 
     def load_image(self, image_file):
         self.image = pygame.image.load(image_file)
@@ -186,6 +185,9 @@ class Bomb(Drawable):
             self.image, (self.width, self.height))
         self.surface.blit(self.image, (0, 0))
 
+    def bomb_delay(self):
+        if self.timer > 0:
+            self.timer -= 1
 
 class Cube(Drawable):
     def __init__(self, board, x, y, width=50, height=50, color=(255, 255, 0)):
