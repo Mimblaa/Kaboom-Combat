@@ -23,6 +23,8 @@ class Board:
                 arg.draw_on(self.surface)
                 for heart in arg.hearts:
                     heart.draw_on(self.surface)
+            elif isinstance(arg, tuple):
+                continue  # Pomijanie tupli
             else:
                 arg.draw_on(self.surface)
 
@@ -39,3 +41,4 @@ class Background:
         scaled_image = pygame.transform.scale(
             self.image, (self.width, self.height))
         surface.blit(scaled_image, (0, 0))
+
