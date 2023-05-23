@@ -10,6 +10,7 @@ from drawable import *
 
 lock = th.Lock()
 cord_list = [[0 for j in range(20)] for i in range(16)]
+semaphore = th.Semaphore(10)
 
 
 class Game:
@@ -40,9 +41,14 @@ class Game:
         self.prof2 = Profile(width, height, 2)
         self.profitems1 = Profile_power_ups(width, height, 1, 0)
         self.profitems2 = Profile_power_ups(width, height, 2, 0)
-        self.text_end = Text(width * 0.11, "Time's up!",width*0.1446,height*0.168)
-        self.text_points1 = Text(width*0.055," ",width*0.1446,height*0.507)
-        self.text_points2 = Text(width*0.055, " ",width*0.1446,height*0.6774)
+        self.text_end = Text(width * 0.11, "Time's up!",
+                             width*0.1446, height*0.168)
+        self.text_points1 = Text(width*0.055, " ", width*0.1446, height*0.507)
+        self.text_points2 = Text(width*0.055, " ", width*0.1446, height*0.6774)
+
+    def prepare(self):
+        random_number = random.randint(20, 60)
+        self.spawn_cubes(random_number, False)
 
     def run(self):
         threads = [
@@ -90,8 +96,10 @@ class Game:
                 self.board_elements.clear()
                 self.board_elements.append(self.background2)
                 self.board_elements.append(self.text_end)
-                self.text_points1.text = str(self.hero1.name)+" points: " + str(self.score1.score)
-                self.text_points2.text = str(self.hero2.name)+ " points: " + str(self.score2.score)
+                self.text_points1.text = str(
+                    self.hero1.name)+" points: " + str(self.score1.score)
+                self.text_points2.text = str(
+                    self.hero2.name) + " points: " + str(self.score2.score)
                 self.board_elements.append(self.text_points1)
                 self.board_elements.append(self.text_points2)
                 self.board.draw(*self.board_elements)
@@ -223,8 +231,10 @@ class Game:
             if cord_list[i][j] == 0:
                 cord_list[i][j] = 1
                 width = math.floor((self.board.surface.get_width() * 0.7) / 20)
-                height = math.floor((self.board.surface.get_height() * 0.9265) / 16)
-                item = Item(self.board, item_type=random.randrange(2), i=j, j=i, width=width, height=height)
+                height = math.floor(
+                    (self.board.surface.get_height() * 0.9265) / 16)
+                item = Item(self.board, item_type=random.randrange(
+                    2), i=j, j=i, width=width, height=height)
                 self.items.append(item)
 
             lock.release()
@@ -234,9 +244,9 @@ class Game:
         global cord_list
         i = math.ceil(
             (x - self.board.surface.get_width() * 0.25) / (
-                        (self.board.surface.get_width() * 0.7) / len(cord_list[0])))
+                (self.board.surface.get_width() * 0.7) / len(cord_list[0])))
         j = math.ceil((y - self.board.surface.get_height() * 0.04) / (
-                (self.board.surface.get_height() * 0.9265) / len(cord_list)))
+            (self.board.surface.get_height() * 0.9265) / len(cord_list)))
 
         lock.acquire()
 
@@ -251,8 +261,8 @@ class Game:
 
         lock.release()
 
-    def spawn_cubes(self):
-        while True:
+    def spawn_cubes(self, iteration=1000000000000, wait=True):
+        for _ in range(iteration):
             i = random.randrange(len(cord_list))
             j = random.randrange(len(cord_list[0]))
 
@@ -273,7 +283,7 @@ class Game:
                 self.cubes.append(cube)
 
             lock.release()
-            pygame.time.wait(5000)
+            pygame.time.wait(5000) if wait else None
 
     def check_collision(self, hero):
         for cube in self.cubes:
@@ -284,4 +294,5 @@ class Game:
 
 if __name__ == "__main__":
     game = Game(1200, 600)
+    game.prepare()
     game.run()
