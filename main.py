@@ -224,7 +224,7 @@ class Game:
                     self.profitems2.add_shield()
                 lock.acquire()
                 print('i: ', item.i, 'j: ' ,item.j)
-                cord_list[item(item.i)][int(item.j)] = 0
+                cord_list[item.i][item.j] = 0
                 lock.release()
                 del item
                 break
@@ -234,6 +234,7 @@ class Game:
         while True:
             i = random.randrange(len(cord_list))
             j = random.randrange(len(cord_list[0]))
+            print('i: ', i, 'j: ', j)
             lock.acquire()
             if cord_list[i][j] == 0:
                 cord_list[i][j] = 1
@@ -241,7 +242,7 @@ class Game:
                 height = math.floor(
                     (self.board.surface.get_height() * 0.9265) / 16)
                 item = Item(self.board, item_type=random.randrange(
-                    2), i=j, j=i, width=width, height=height)
+                    2), i=i, j=j, width=width, height=height)
                 self.items.append(item)
 
             lock.release()

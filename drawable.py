@@ -139,9 +139,9 @@ class Item(Drawable):
         columns = len(cord_list[0])
         self.item_type = item_type
         self.x = math.ceil((board.surface.get_width() * 0.25) +
-                           math.ceil((board.surface.get_width() * 0.7 / columns) * i))
+                           math.ceil((board.surface.get_width() * 0.7 / columns) * j))
         self.y = math.ceil(
-            (board.surface.get_height() * 0.04) + math.ceil((board.surface.get_height() * 0.9265 / rows) * j))
+            (board.surface.get_height() * 0.04) + math.ceil((board.surface.get_height() * 0.9265 / rows) * i))
         super().__init__(width, height, self.x, self.y)
         image_file = {
             0: 'images/gold_heart.png',
