@@ -21,7 +21,7 @@ class Drawable:
 
 
 class Hero(Drawable):
-    def __init__(self, image_file, width, height, x, y, color=(0, 255, 0), lives=3, name="Player", shield=0, bomb=1):
+    def __init__(self, board,image_file, width, height, x, y, color=(0, 255, 0), lives=3, name="Player", shield=0, bomb=1):
         super().__init__(width, height, x, y, color)
         self.image = None
         self.width = width
@@ -32,6 +32,7 @@ class Hero(Drawable):
         self.load_image(image_file)
         self.shield = shield
         self.bomb = bomb
+        self.board=board
 
     def load_image(self, image_file):
         self.image = pygame.image.load(image_file)
@@ -63,6 +64,18 @@ class Hero(Drawable):
 
         self.rect.x += x
         self.rect.y += y
+
+    def get_position_j(self):
+        i = math.floor((
+            (self.rect.x - self.board.surface.get_width() * 0.25) / (
+                    (self.board.surface.get_width() * 0.7) / len(cord_list[0]))))
+        return i
+
+    def get_position_i(self):
+        j = math.floor(((self.rect.y - self.board.surface.get_height() * 0.04)/ (
+                (self.board.surface.get_height() * 0.9265) / len(cord_list))))
+        return j
+
 
     def activate_shield(self):
         self.shield = 1
@@ -186,7 +199,7 @@ class Text:
 
 
 class Bomb(Drawable):
-    def __init__(self, image_file, player, i, j, timer=50, width=30, height=30, x=0, y=0):
+    def __init__(self, image_file, player, i, j, timer=250, width=30, height=30, x=0, y=0):
         self.image = None
         self.width = width
         self.height = height

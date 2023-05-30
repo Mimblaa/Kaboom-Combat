@@ -1,3 +1,5 @@
+import math
+
 import pygame
 import pygame.locals
 import threading as th
@@ -9,22 +11,27 @@ from board import *
 from drawable import *
 
 lock = th.Lock()
-cord_list = [[0 for j in range(20)] for i in range(16)]
+cord_list = [[0 for i in range(20)] for j in range(16)]
+cord_list[0][0] = 1
+cord_list[0][19] = 1
 semaphore = th.Semaphore(10)
+print(len(cord_list))
+print(len(cord_list[0]))
 
 
 class Game:
     def __init__(self, width, height):
+        self.board_elements = None
         pygame.init()
         self.background = Background(
             'images/background.png', width, height)
         self.background2 = Background(
             'images/blank.png', width, height)
         self.board = Board(width, height, background=self.background)
-        self.hero1 = Hero(image_file='images/hero1.png', width=30,
-                          height=30, x=width / 2, y=height / 2, name="Player 1")
-        self.hero2 = Hero(image_file='images/hero2.png', width=30, height=30,
-                          x=width // 3, y=height // 3, color=(255, 0, 0), name="Player 2")
+        self.hero1 = Hero(self.board, image_file='images/hero1.png', width=30,
+                          height=30, x=width * 0.25, y=height * 0.04, name="Player 1")
+        self.hero2 = Hero(self.board, image_file='images/hero2.png', width=30, height=30,
+                          x=width - width * 0.0734, y=height * 0.04, color=(255, 0, 0), name="Player 2")
         hearts1 = [Heart(width=width, height=height, live_type=True,
                          player=1, number=i) for i in range(1, 4)]
         hearts2 = [Heart(width=width, height=height, live_type=True,
@@ -42,9 +49,9 @@ class Game:
         self.profitems1 = Profile_power_ups(width, height, 1, 0)
         self.profitems2 = Profile_power_ups(width, height, 2, 0)
         self.text_end = Text(width * 0.11, "Time's up!",
-                             width*0.1446, height*0.168)
-        self.text_points1 = Text(width*0.055, " ", width*0.1446, height*0.507)
-        self.text_points2 = Text(width*0.055, " ", width*0.1446, height*0.6774)
+                             width * 0.1446, height * 0.168)
+        self.text_points1 = Text(width * 0.055, " ", width * 0.1446, height * 0.507)
+        self.text_points2 = Text(width * 0.055, " ", width * 0.1446, height * 0.6774)
 
     def prepare(self):
         random_number = random.randint(20, 60)
@@ -97,7 +104,7 @@ class Game:
                 self.board_elements.append(self.background2)
                 self.board_elements.append(self.text_end)
                 self.text_points1.text = str(
-                    self.hero1.name)+" points: " + str(self.score1.score)
+                    self.hero1.name) + " points: " + str(self.score1.score)
                 self.text_points2.text = str(
                     self.hero2.name) + " points: " + str(self.score2.score)
                 self.board_elements.append(self.text_points1)
@@ -159,36 +166,35 @@ class Game:
     # check colision between hero and bombs
     def bomb_colision(self):
         for bomb in self.bombs:
-            if self.hero1.rect.colliderect(bomb.rect) and bomb.timer == 0:
-                self.hero1.remove_live()
-                self.bombs.remove(bomb)
-                self.profitems1.remove_shield()
-                if bomb.player == 1:
-                    self.hero1.bomb = 1
-                elif bomb.player == 2:
-                    self.hero2.bomb = 1
-                lock.acquire()
-                cord_list[bomb.i][bomb.j] = 0
-                lock.release()
-                del bomb
-                self.score2.increase_score(10)  # Zwiększenie punktacji o 10
-                break  # Dodajemy break, aby przerwać pętlę po znalezieniu kolizji
+            if bomb.timer==0:
+                bomb_position_hero1 = (self.hero1.get_position_i(), self.hero1.get_position_j())
+                bomb_position_hero2 = (self.hero2.get_position_i(), self.hero2.get_position_j())
 
-            if self.hero2.rect.colliderect(bomb.rect) and bomb.timer == 0:
-                self.hero2.remove_live()
-                self.bombs.remove(bomb)
-                self.profitems2.remove_shield()
-                if bomb.player == 1:
-                    self.hero1.bomb = 1
-                elif bomb.player == 2:
-                    self.hero2.bomb = 1
-                lock.acquire()
-                cord_list[bomb.i][bomb.j] = 0
-                lock.release()
-                del bomb
+                if (bomb.i, bomb.j) == bomb_position_hero1 or \
+                        abs(bomb.i - bomb_position_hero1[0]) + abs(bomb.j - bomb_position_hero1[1]) == 1:
+                    self.hero1.remove_live()
+                    self.bombs.remove(bomb)
+                    self.profitems1.remove_shield()
+                    self.hero1.bomb = 1 if bomb.player == 1 else 2
+                    lock.acquire()
+                    cord_list[bomb.i][bomb.j] = 0
+                    lock.release()
+                    del bomb
+                    self.score2.increase_score(10)
+                    break
 
-                self.score1.increase_score(10)  # Zwiększenie punktacji o 10
-                break
+                if (bomb.i, bomb.j) == bomb_position_hero2 or \
+                        abs(bomb.i - bomb_position_hero2[0]) + abs(bomb.j - bomb_position_hero2[1]) == 1:
+                    self.hero2.remove_live()
+                    self.bombs.remove(bomb)
+                    self.profitems1.remove_shield()
+                    self.hero2.bomb = 1 if bomb.player == 2 else 1
+                    lock.acquire()
+                    cord_list[bomb.i][bomb.j] = 0
+                    lock.release()
+                    del bomb
+                    self.score1.increase_score(10)
+                    break
 
             bomb.bomb_delay()
 
@@ -217,7 +223,8 @@ class Game:
                     self.hero2.activate_shield()
                     self.profitems2.add_shield()
                 lock.acquire()
-                cord_list[item.i][item.j] = 0
+                print('i: ', item.i, 'j: ' ,item.j)
+                cord_list[item(item.i)][int(item.j)] = 0
                 lock.release()
                 del item
                 break
@@ -242,14 +249,13 @@ class Game:
 
     def spawn_bombs(self, x, y, player):
         global cord_list
-        i = math.ceil(
+        j = math.floor(
             (x - self.board.surface.get_width() * 0.25) / (
-                (self.board.surface.get_width() * 0.7) / len(cord_list[0])))
-        j = math.ceil((y - self.board.surface.get_height() * 0.04) / (
-            (self.board.surface.get_height() * 0.9265) / len(cord_list)))
+                    (self.board.surface.get_width() * 0.7) / len(cord_list[0])))
+        i = math.floor((y - self.board.surface.get_height() * 0.04) / (
+                (self.board.surface.get_height() * 0.9265) / len(cord_list)))
 
         lock.acquire()
-
         if cord_list[i][j] == 0:
             cord_list[i][j] = 1
             width = math.floor((self.board.surface.get_width() * 0.7) / 20)
