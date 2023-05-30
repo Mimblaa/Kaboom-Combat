@@ -224,13 +224,15 @@ class Bomb(Drawable):
 
 
 class Cube(Drawable):
-    def __init__(self, x, y, width=50, height=50, color=(255, 255, 0)):
+    def __init__(self, x, y, width=50, height=50, color=(255, 255, 0),i=0,j=0):
         super().__init__(width, height, x, y, color)
         self.image = None
         paths = ['images/cheese_brick.png', 'images/dirt_brick.png',
                  'images/sweet_brick.png', 'images/ice_cube.png']
         image_file = paths[random.randrange(len(paths))]
         self.load_image(image_file)
+        self.i=i
+        self.j=j
 
     def check_collision(self, rect):
         return self.rect.colliderect(rect)

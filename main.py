@@ -163,39 +163,57 @@ class Game:
                 self.hero2.bomb = 0
                 self.spawn_bombs(self.hero2.rect.x, self.hero2.rect.y, 2)
 
-    # check colision between hero and bombs
     def bomb_colision(self):
         for bomb in self.bombs:
-            if bomb.timer==0:
+            if bomb.timer == 0:
                 bomb_position_hero1 = (self.hero1.get_position_i(), self.hero1.get_position_j())
                 bomb_position_hero2 = (self.hero2.get_position_i(), self.hero2.get_position_j())
 
+                # Check collision with hero1
                 if (bomb.i, bomb.j) == bomb_position_hero1 or \
                         abs(bomb.i - bomb_position_hero1[0]) + abs(bomb.j - bomb_position_hero1[1]) == 1:
                     self.hero1.remove_live()
-                    self.bombs.remove(bomb)
                     self.profitems1.remove_shield()
                     self.hero1.bomb = 1 if bomb.player == 1 else 2
-                    lock.acquire()
-                    cord_list[bomb.i][bomb.j] = 0
-                    lock.release()
-                    del bomb
-                    self.score2.increase_score(10)
-                    break
-
-                if (bomb.i, bomb.j) == bomb_position_hero2 or \
-                        abs(bomb.i - bomb_position_hero2[0]) + abs(bomb.j - bomb_position_hero2[1]) == 1:
-                    self.hero2.remove_live()
-                    self.bombs.remove(bomb)
-                    self.profitems1.remove_shield()
                     self.hero2.bomb = 1 if bomb.player == 2 else 1
                     lock.acquire()
                     cord_list[bomb.i][bomb.j] = 0
                     lock.release()
-                    del bomb
-                    self.score1.increase_score(10)
-                    break
+                    self.score2.increase_score(10)
 
+                # Check collision with hero2
+                elif (bomb.i, bomb.j) == bomb_position_hero2 or \
+                        abs(bomb.i - bomb_position_hero2[0]) + abs(bomb.j - bomb_position_hero2[1]) == 1:
+                    self.hero2.remove_live()
+                    self.profitems1.remove_shield()
+                    self.hero1.bomb = 1 if bomb.player == 1 else 2
+                    self.hero2.bomb = 1 if bomb.player == 2 else 1
+                    lock.acquire()
+                    cord_list[bomb.i][bomb.j] = 0
+                    lock.release()
+                    self.score1.increase_score(10)
+
+                # Check collision with cubes
+                adjacent_positions = [(bomb.i + 1, bomb.j), (bomb.i - 1, bomb.j), (bomb.i, bomb.j + 1),
+                                      (bomb.i, bomb.j - 1)]
+                for cube in self.cubes:
+                    for position in adjacent_positions:
+                        if (cube.i, cube.j) == position:
+                            self.cubes.remove(cube)
+                            self.hero1.bomb = 1 if bomb.player == 1 else 2
+                            self.hero2.bomb = 1 if bomb.player == 2 else 1
+                            lock.acquire()
+                            cord_list[cube.i][cube.j] = 0
+                            lock.release()
+                            break
+
+                self.bombs.remove(bomb)  # Remove bomb after checking collisions
+
+            # After the loop, remove the bombs that were marked for deletion
+        self.bombs = [bomb for bomb in self.bombs if bomb.timer > 0]
+
+        # Update bomb timers
+        for bomb in self.bombs:
             bomb.bomb_delay()
 
     # check colision between hero and items
@@ -286,7 +304,7 @@ class Game:
                 width = math.floor((self.board.surface.get_width() * 0.7) / 20)
                 height = math.floor(
                     (self.board.surface.get_height() * 0.9265) / 16)
-                cube = Cube(x, y, width, height)
+                cube = Cube(x, y, width, height,i=i,j=j)
                 self.cubes.append(cube)
 
             lock.release()
