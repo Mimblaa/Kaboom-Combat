@@ -50,6 +50,8 @@ class Game:
         self.profitems2 = Profile_power_ups(width, height, 2, 0)
         self.text_end = Text(width * 0.11, "Time's up!",
                              width * 0.1446, height * 0.168)
+        self.text_end_live = Text(width * 0.11, "Player died",
+                             width * 0.1446, height * 0.168)
         self.text_points1 = Text(width * 0.055, " ", width * 0.1446, height * 0.507)
         self.text_points2 = Text(width * 0.055, " ", width * 0.1446, height * 0.6774)
 
@@ -102,7 +104,10 @@ class Game:
             elif event.type == pygame.USEREVENT:
                 self.board_elements.clear()
                 self.board_elements.append(self.background2)
-                self.board_elements.append(self.text_end)
+                if self.timer.time_left == 0:
+                    self.board_elements.append(self.text_end)
+                else:
+                    self.board_elements.append(self.text_end_live)
                 self.text_points1.text = str(
                     self.hero1.name) + " points: " + str(self.score1.score)
                 self.text_points2.text = str(
@@ -241,7 +246,6 @@ class Game:
                     self.hero2.activate_shield()
                     self.profitems2.add_shield()
                 lock.acquire()
-                print('i: ', item.i, 'j: ' ,item.j)
                 cord_list[item.i][item.j] = 0
                 lock.release()
                 del item
@@ -252,7 +256,6 @@ class Game:
         while True:
             i = random.randrange(len(cord_list))
             j = random.randrange(len(cord_list[0]))
-            print('i: ', i, 'j: ', j)
             lock.acquire()
             if cord_list[i][j] == 0:
                 cord_list[i][j] = 1

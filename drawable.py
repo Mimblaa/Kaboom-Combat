@@ -90,6 +90,8 @@ class Hero(Drawable):
             elif self.lives == 1:
                 self.lives -= 1
                 print("Player " + self.name + " is dead")
+                pygame.event.post(pygame.event.Event(pygame.USEREVENT))
+
             self.update_hearts()
         else:
             self.deactivate_shield()
@@ -179,7 +181,7 @@ class Timer:
             pygame.time.wait(1000)
 
         pygame.event.post(pygame.event.Event(pygame.USEREVENT))
-        sys.exit()
+
 
     def draw_on(self, surface):
         text = self.font.render(self.clock_format, True, (0, 0, 0))
