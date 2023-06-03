@@ -19,8 +19,8 @@ semaphore = th.Semaphore(10)
 
 class Game:
     def __init__(self, width, height):
-        self.width=width
-        self.height=height
+        self.width = width
+        self.height = height
         self.board_elements = None
         pygame.init()
         self.background = Background(
@@ -52,8 +52,11 @@ class Game:
                              width * 0.1446, height * 0.168)
         self.text_end_live = Text(width * 0.11, "Player died",
                                   width * 0.1446, height * 0.168)
-        self.text_points1 = Text(width * 0.055, " ", width * 0.1446, height * 0.507)
-        self.text_points2 = Text(width * 0.055, " ", width * 0.1446, height * 0.6774)
+        self.text_points1 = Text(
+            width * 0.055, " ", width * 0.1446, height * 0.507)
+        self.text_points2 = Text(
+            width * 0.055, " ", width * 0.1446, height * 0.6774)
+        self.game_paused = False
 
     def reset_game(self):
         self.board_elements = None
@@ -87,10 +90,12 @@ class Game:
                              self.width * 0.1446, self.height * 0.168)
         self.text_end_live = Text(self.width * 0.11, "Player died",
                                   self.width * 0.1446, self.height * 0.168)
-        self.text_points1 = Text(self.width * 0.055, " ", self.width * 0.1446, self.height * 0.507)
-        self.text_points2 = Text(self.width * 0.055, " ", self.width * 0.1446, self.height * 0.6774)
+        self.text_points1 = Text(
+            self.width * 0.055, " ", self.width * 0.1446, self.height * 0.507)
+        self.text_points2 = Text(
+            self.width * 0.055, " ", self.width * 0.1446, self.height * 0.6774)
         global cord_list
-        cord_list=[[0 for i in range(20)] for j in range(16)]
+        cord_list = [[0 for i in range(20)] for j in range(16)]
         cord_list[0][0] = 1
         cord_list[0][19] = 1
         game.prepare()
@@ -112,24 +117,25 @@ class Game:
             thread.start()
 
         while not self.handle_events():
-            self.bomb_colision()  # Sprawdzanie kolizji dla każdej bomby
-            self.item_colision()
-            self.board_elements = [
-                self.background,
-                self.hero1,
-                self.hero2,
-                self.timer,
-                *self.items,
-                *self.bombs,
-                *self.cubes,
-                self.score1,
-                self.score2,
-                self.prof1,
-                self.prof2,
-                self.profitems1,
-                self.profitems2,
-            ]
-            self.board.draw(*self.board_elements)
+            if not self.game_paused:
+                self.bomb_colision()  # Sprawdzanie kolizji dla każdej bomby
+                self.item_colision()
+                self.board_elements = [
+                    self.background,
+                    self.hero1,
+                    self.hero2,
+                    self.timer,
+                    *self.items,
+                    *self.bombs,
+                    *self.cubes,
+                    self.score1,
+                    self.score2,
+                    self.prof1,
+                    self.prof2,
+                    self.profitems1,
+                    self.profitems2,
+                ]
+                self.board.draw(*self.board_elements)
 
         # Wait until both threads have finished
         for thread in threads:
@@ -137,7 +143,6 @@ class Game:
         pygame.quit()
 
     def handle_events(self):
-
         for event in pygame.event.get():
             if event.type == pygame.locals.QUIT:
                 pygame.quit()
@@ -156,6 +161,9 @@ class Game:
                 self.board_elements.append(self.text_points1)
                 self.board_elements.append(self.text_points2)
                 self.board.draw(*self.board_elements)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_z:
+                    self.game_paused = not self.game_paused
 
                 while True:
                     # Oczekiwanie na wcisnięcie spacji
@@ -169,8 +177,6 @@ class Game:
                     else:
                         continue  # Jeśli nie wcisnięto spacji, kontynuuj pętlę
                     break  # Jeśli wcisnięto spacje, wyjście z pętli
-
-
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:
@@ -226,8 +232,10 @@ class Game:
     def bomb_colision(self):
         for bomb in self.bombs:
             if bomb.timer == 0:
-                bomb_position_hero1 = (self.hero1.get_position_i(), self.hero1.get_position_j())
-                bomb_position_hero2 = (self.hero2.get_position_i(), self.hero2.get_position_j())
+                bomb_position_hero1 = (
+                    self.hero1.get_position_i(), self.hero1.get_position_j())
+                bomb_position_hero2 = (
+                    self.hero2.get_position_i(), self.hero2.get_position_j())
 
                 # Check collision with hero1
                 if (bomb.i, bomb.j) == bomb_position_hero1 or \
@@ -262,7 +270,8 @@ class Game:
                             break
                 self.hero1.bomb = 1 if bomb.player == 1 else 2
                 self.hero2.bomb = 1 if bomb.player == 2 else 1
-                self.bombs.remove(bomb)  # Remove bomb after checking collisions
+                # Remove bomb after checking collisions
+                self.bombs.remove(bomb)
 
             # After the loop, remove the bombs that were marked for deletion
         self.bombs = [bomb for bomb in self.bombs if bomb.timer > 0]
@@ -323,9 +332,9 @@ class Game:
         global cord_list
         j = math.floor(
             (x - self.board.surface.get_width() * 0.25) / (
-                    (self.board.surface.get_width() * 0.7) / len(cord_list[0])))
+                (self.board.surface.get_width() * 0.7) / len(cord_list[0])))
         i = math.floor((y - self.board.surface.get_height() * 0.04) / (
-                (self.board.surface.get_height() * 0.9265) / len(cord_list)))
+            (self.board.surface.get_height() * 0.9265) / len(cord_list)))
 
         lock.acquire()
         if cord_list[i][j] == 0:
@@ -337,9 +346,9 @@ class Game:
                         x=x, y=y, width=width, height=height, player=player, i=i, j=j)
             self.bombs.append(bomb)
         else:
-            if player==1:
+            if player == 1:
                 self.hero1.bomb = 1
-            elif player==2:
+            elif player == 2:
                 self.hero2.bomb = 1
 
         lock.release()
@@ -362,7 +371,7 @@ class Game:
                 width = math.floor((self.board.surface.get_width() * 0.7) / 20)
                 height = math.floor(
                     (self.board.surface.get_height() * 0.9265) / 16)
-                cube = Cube(x, y, width, height,i=i,j=j)
+                cube = Cube(x, y, width, height, i=i, j=j)
                 self.cubes.append(cube)
 
             lock.release()
