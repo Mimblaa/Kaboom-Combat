@@ -15,12 +15,12 @@ cord_list = [[0 for i in range(20)] for j in range(16)]
 cord_list[0][0] = 1
 cord_list[0][19] = 1
 semaphore = th.Semaphore(10)
-print(len(cord_list))
-print(len(cord_list[0]))
 
 
 class Game:
     def __init__(self, width, height):
+        self.width=width
+        self.height=height
         self.board_elements = None
         pygame.init()
         self.background = Background(
@@ -51,9 +51,50 @@ class Game:
         self.text_end = Text(width * 0.11, "Time's up!",
                              width * 0.1446, height * 0.168)
         self.text_end_live = Text(width * 0.11, "Player died",
-                             width * 0.1446, height * 0.168)
+                                  width * 0.1446, height * 0.168)
         self.text_points1 = Text(width * 0.055, " ", width * 0.1446, height * 0.507)
         self.text_points2 = Text(width * 0.055, " ", width * 0.1446, height * 0.6774)
+
+    def reset_game(self):
+        self.board_elements = None
+        pygame.init()
+        self.background = Background(
+            'images/background.png', self.width, self.height)
+        self.background2 = Background(
+            'images/blank.png', self.width, self.height)
+        self.board = Board(self.width, self.height, background=self.background)
+        self.hero1 = Hero(self.board, image_file='images/hero1.png', width=30,
+                          height=30, x=self.width * 0.25, y=self.height * 0.04, name="Player 1")
+        self.hero2 = Hero(self.board, image_file='images/hero2.png', width=30, height=30,
+                          x=self.width - self.width * 0.0734, y=self.height * 0.04, color=(255, 0, 0), name="Player 2")
+        hearts1 = [Heart(width=self.width, height=self.height, live_type=True,
+                         player=1, number=i) for i in range(1, 4)]
+        hearts2 = [Heart(width=self.width, height=self.height, live_type=True,
+                         player=2, number=i) for i in range(1, 4)]
+        self.hero1.set_hearts(hearts1)
+        self.hero2.set_hearts(hearts2)
+        self.timer = Timer(self.width, 80)
+        self.items = []
+        self.bombs = []
+        self.cubes = []
+        self.score1 = Score(self.width, self.height, 1)
+        self.score2 = Score(self.width, self.height, 2)
+        self.prof1 = Profile(self.width, self.height, 1)
+        self.prof2 = Profile(self.width, self.height, 2)
+        self.profitems1 = Profile_power_ups(self.width, self.height, 1, 0)
+        self.profitems2 = Profile_power_ups(self.width, self.height, 2, 0)
+        self.text_end = Text(self.width * 0.11, "Time's up!",
+                             self.width * 0.1446, self.height * 0.168)
+        self.text_end_live = Text(self.width * 0.11, "Player died",
+                                  self.width * 0.1446, self.height * 0.168)
+        self.text_points1 = Text(self.width * 0.055, " ", self.width * 0.1446, self.height * 0.507)
+        self.text_points2 = Text(self.width * 0.055, " ", self.width * 0.1446, self.height * 0.6774)
+        global cord_list
+        cord_list=[[0 for i in range(20)] for j in range(16)]
+        cord_list[0][0] = 1
+        cord_list[0][19] = 1
+        game.prepare()
+        game.run()
 
     def prepare(self):
         random_number = random.randint(20, 60)
@@ -115,7 +156,21 @@ class Game:
                 self.board_elements.append(self.text_points1)
                 self.board_elements.append(self.text_points2)
                 self.board.draw(*self.board_elements)
-                return True
+
+                while True:
+                    # Oczekiwanie na wcisnięcie spacji
+                    for event in pygame.event.get():
+                        if event.type == pygame.locals.QUIT:
+                            pygame.quit()
+                            exit()
+                        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                            self.reset_game()
+                            break
+                    else:
+                        continue  # Jeśli nie wcisnięto spacji, kontynuuj pętlę
+                    break  # Jeśli wcisnięto spacje, wyjście z pętli
+
+
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:
@@ -179,8 +234,6 @@ class Game:
                         abs(bomb.i - bomb_position_hero1[0]) + abs(bomb.j - bomb_position_hero1[1]) == 1:
                     self.hero1.remove_live()
                     self.profitems1.remove_shield()
-                    self.hero1.bomb = 1 if bomb.player == 1 else 2
-                    self.hero2.bomb = 1 if bomb.player == 2 else 1
                     lock.acquire()
                     cord_list[bomb.i][bomb.j] = 0
                     lock.release()
@@ -191,8 +244,6 @@ class Game:
                         abs(bomb.i - bomb_position_hero2[0]) + abs(bomb.j - bomb_position_hero2[1]) == 1:
                     self.hero2.remove_live()
                     self.profitems1.remove_shield()
-                    self.hero1.bomb = 1 if bomb.player == 1 else 2
-                    self.hero2.bomb = 1 if bomb.player == 2 else 1
                     lock.acquire()
                     cord_list[bomb.i][bomb.j] = 0
                     lock.release()
@@ -205,13 +256,12 @@ class Game:
                     for position in adjacent_positions:
                         if (cube.i, cube.j) == position:
                             self.cubes.remove(cube)
-                            self.hero1.bomb = 1 if bomb.player == 1 else 2
-                            self.hero2.bomb = 1 if bomb.player == 2 else 1
                             lock.acquire()
                             cord_list[cube.i][cube.j] = 0
                             lock.release()
                             break
-
+                self.hero1.bomb = 1 if bomb.player == 1 else 2
+                self.hero2.bomb = 1 if bomb.player == 2 else 1
                 self.bombs.remove(bomb)  # Remove bomb after checking collisions
 
             # After the loop, remove the bombs that were marked for deletion
@@ -286,6 +336,11 @@ class Game:
             bomb = Bomb(image_file='images/bomb.png',
                         x=x, y=y, width=width, height=height, player=player, i=i, j=j)
             self.bombs.append(bomb)
+        else:
+            if player==1:
+                self.hero1.bomb = 1
+            elif player==2:
+                self.hero2.bomb = 1
 
         lock.release()
 
