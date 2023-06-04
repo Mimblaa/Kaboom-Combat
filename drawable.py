@@ -105,6 +105,23 @@ class Reset:
         surface.blit(self.image, self.rect)
 
 
+class Delete:
+    def __init__(self, width, height, i=0, j=0):
+        self.image_path = 'images/delete_mark.png'
+        self.width = width
+        self.height = height
+        rows = len(cord_list)
+        columns = len(cord_list[0])
+        x = math.floor((width * 0.7) / rows)
+        y = math.floor((height * 0.9265) / columns)
+        self.x_pos = math.ceil((width * 0.25) + math.ceil((width * 0.7 / columns) * j))
+        self.y_pos = math.ceil((height * 0.04) + math.ceil((height * 0.9265 / rows) * i))
+        self.image = pygame.transform.scale(pygame.image.load(self.image_path), (x, y))
+        self.rect = self.image.get_rect(x=self.x_pos, y=self.y_pos)
+
+    def draw_on(self, surface):
+        surface.blit(self.image, self.rect)
+
 
 class Item(Drawable):
     def __init__(self, board, item_type, width=30, height=30, i=0, j=0):
@@ -174,6 +191,7 @@ class Bomb(Drawable):
         self.player = player
         self.i = i
         self.j = j
+        self.delete_marks = []
 
     def load_image(self, image_file):
         self.image = pygame.image.load(image_file)
@@ -184,6 +202,9 @@ class Bomb(Drawable):
     def bomb_delay(self):
         if self.timer > 0:
             self.timer -= 1
+
+    def set_marks(self, delete_marks):
+        self.delete_marks = delete_marks
 
 
 class Cube(Drawable):

@@ -78,6 +78,7 @@ class Game:
         self.items = []
         self.bombs = []
         self.cubes = []
+        self.delete_marks = []
         self.score1 = Score(self.width, self.height, 1)
         self.score2 = Score(self.width, self.height, 2)
         self.prof1 = Profile(self.width, self.height, 1)
@@ -202,6 +203,11 @@ class Game:
 
     def bomb_collision(self):
         for bomb in self.bombs:
+            if bomb.timer == 50:
+                delete_marks = []
+                for x, y in [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]:
+                    delete_marks.append(Delete(self.width, self.height, bomb.i + x, bomb.j + y))
+                    bomb.set_marks(delete_marks)
             if bomb.timer == 0:
                 bomb_position_hero1 = (self.hero1.get_position_i(), self.hero1.get_position_j())
                 bomb_position_hero2 = (self.hero2.get_position_i(), self.hero2.get_position_j())

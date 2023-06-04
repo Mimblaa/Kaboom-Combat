@@ -14,11 +14,14 @@ class Board:
         self.surface.blit(self.background.image, (0, 0))
 
         for arg in args:
-            if isinstance(arg, pygame.sprite.Group) or isinstance(arg, Hero):
+            if isinstance(arg, pygame.sprite.Group) or isinstance(arg, Hero) or isinstance(arg, Bomb):
                 arg.draw_on(self.surface)
                 if isinstance(arg, Hero):
                     for heart in arg.hearts:
                         heart.draw_on(self.surface)
+                if isinstance(arg, Bomb):
+                    for mark in arg.delete_marks:
+                        mark.draw_on(self.surface)
             elif not isinstance(arg, tuple):
                 arg.draw_on(self.surface)
 
