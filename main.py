@@ -54,6 +54,7 @@ class Game:
                                   width * 0.1446, height * 0.168)
         self.text_points1 = Text(width * 0.055, " ", width * 0.1446, height * 0.507)
         self.text_points2 = Text(width * 0.055, " ", width * 0.1446, height * 0.6774)
+        self.restart_button=Reset(width,height)
 
     def reset_game(self):
         self.board_elements = None
@@ -89,6 +90,7 @@ class Game:
                                   self.width * 0.1446, self.height * 0.168)
         self.text_points1 = Text(self.width * 0.055, " ", self.width * 0.1446, self.height * 0.507)
         self.text_points2 = Text(self.width * 0.055, " ", self.width * 0.1446, self.height * 0.6774)
+        self.restart_button = Reset(self.width, self.height)
         global cord_list
         cord_list=[[0 for i in range(20)] for j in range(16)]
         cord_list[0][0] = 1
@@ -155,20 +157,22 @@ class Game:
                     self.hero2.name) + " points: " + str(self.score2.score)
                 self.board_elements.append(self.text_points1)
                 self.board_elements.append(self.text_points2)
+                self.board_elements.append(self.restart_button)
                 self.board.draw(*self.board_elements)
 
                 while True:
-                    # Oczekiwanie na wcisnięcie spacji
+                    # Oczekiwanie na wcisnięcie resetu
                     for event in pygame.event.get():
                         if event.type == pygame.locals.QUIT:
                             pygame.quit()
                             exit()
-                        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                            self.reset_game()
-                            break
+                        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Lewy przycisk myszy wciśnięty
+                            if self.restart_button.check_collision(pygame.mouse.get_pos()):  # Sprawdzenie czy kliknięcie nastąpiło na przycisku
+                                self.reset_game()
+                                break
                     else:
-                        continue  # Jeśli nie wcisnięto spacji, kontynuuj pętlę
-                    break  # Jeśli wcisnięto spacje, wyjście z pętli
+                        continue  # Jeśli nie wcisnięto przycisku, kontynuuj pętlę
+                    break  # Jeśli wcisnięto reset, wyjście z pętli
 
 
 

@@ -130,6 +130,28 @@ class Heart:
         surface.blit(self.image, self.rect)
 
 
+class Reset:
+    def __init__(self, width, height):
+        self.image_path = 'images/restart.png'
+        self.rect = None
+        self.width = width
+        self.height = height
+        self.x_pos = width * 0.356
+        self.y_pos = height * 0.81
+        self.image = pygame.image.load(self.image_path)
+        self.image = pygame.transform.scale(
+            self.image, (int(self.width * 0.288), int(self.height * 0.118)))
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x_pos
+        self.rect.y = self.y_pos
+
+    def draw_on(self, surface):
+        surface.blit(self.image, self.rect)
+
+    def check_collision(self, pos):
+        return self.rect.collidepoint(pos)
+
+
 class Item(Drawable):
     def __init__(self, board, item_type, width=30, height=30, i=0, j=0):
         self.image = None
