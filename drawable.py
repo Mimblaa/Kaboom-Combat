@@ -53,12 +53,6 @@ class Hero(Drawable):
     def get_position_i(self):
         return math.floor((self.rect.y - self.board.surface.get_height() * 0.04) / (self.board.surface.get_height() * 0.9265 / len(cord_list)))
 
-    def activate_shield(self):
-        self.shield = 1
-
-    def deactivate_shield(self):
-        self.shield = 0
-
     def remove_live(self):
         if self.shield == 0:
             if self.lives > 1:
@@ -69,7 +63,7 @@ class Hero(Drawable):
                 pygame.event.post(pygame.event.Event(pygame.USEREVENT))
             self.update_hearts()
         else:
-            self.deactivate_shield()
+            self.shield = 0
 
     def add_live(self):
         if self.lives < 3:
@@ -110,12 +104,11 @@ class Reset:
     def draw_on(self, surface):
         surface.blit(self.image, self.rect)
 
-    def check_collision(self, pos):
-        return self.rect.collidepoint(pos)
 
 
 class Item(Drawable):
     def __init__(self, board, item_type, width=30, height=30, i=0, j=0):
+        self.image = None
         self.i = i
         self.j = j
         rows = len(cord_list)
@@ -134,9 +127,6 @@ class Item(Drawable):
     def load_image(self, image_file):
         self.image = pygame.transform.scale(pygame.image.load(image_file), (self.width, self.height))
         self.surface.blit(self.image, (0, 0))
-
-    def get_type(self):
-        return self.item_type
 
 
 class Timer:
@@ -207,9 +197,6 @@ class Cube(Drawable):
         self.i = i
         self.j = j
 
-    def check_collision(self, rect):
-        return self.rect.colliderect(rect)
-
     def load_image(self, image_file):
         self.image = pygame.image.load(image_file)
         self.image = pygame.transform.scale(
@@ -272,9 +259,6 @@ class Score:
         self.score = 0
         self.font = pygame.font.SysFont('monospace', int(width * 0.02))
         self.position = (width * 0.045, height * 0.5197 + (player - 1) * height * 0.307)
-
-    def increase_score(self, points):
-        self.score += points
 
     def draw_on(self, surface):
         text = self.font.render(str(self.score), True, (0, 0, 0))

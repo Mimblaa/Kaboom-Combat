@@ -163,7 +163,7 @@ class Game:
                             pygame.quit()
                             exit()
                         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Lewy przycisk myszy wciśnięty
-                            if self.restart_button.check_collision(
+                            if self.restart_button.rect.collidepoint(
                                     pygame.mouse.get_pos()):  # Sprawdzenie czy kliknięcie nastąpiło na przycisku
                                 self.reset_game()
                                 break
@@ -209,23 +209,28 @@ class Game:
                 # Check collision with hero1
                 if (bomb.i, bomb.j) == bomb_position_hero1 or \
                         abs(bomb.i - bomb_position_hero1[0]) + abs(bomb.j - bomb_position_hero1[1]) == 1:
-                    self.hero1.remove_live()
-                    self.profitems1.remove_shield()
-                    lock.acquire()
-                    cord_list[bomb.i][bomb.j] = 0
-                    lock.release()
-                    self.score2.increase_score(10)
+                    if self.hero1.shield == 0:
+                        self.hero1.remove_live()
+                        lock.acquire()
+                        cord_list[bomb.i][bomb.j] = 0
+                        lock.release()
+                        self.score2.score += 10
+                    else:
+                        self.hero1.shield = 0
+                        self.profitems1.remove_shield()
 
-                # Check collision with hero2
+                        # Check collision with hero2
                 elif (bomb.i, bomb.j) == bomb_position_hero2 or \
                         abs(bomb.i - bomb_position_hero2[0]) + abs(bomb.j - bomb_position_hero2[1]) == 1:
-                    self.hero2.remove_live()
-                    self.profitems1.remove_shield()
-                    lock.acquire()
-                    cord_list[bomb.i][bomb.j] = 0
-                    lock.release()
-                    self.score1.increase_score(10)
-
+                    if self.hero2.shield == 0:
+                        self.hero2.remove_live()
+                        lock.acquire()
+                        cord_list[bomb.i][bomb.j] = 0
+                        lock.release()
+                        self.score1.score += 10
+                    else:
+                        self.hero2.shield = 0
+                        self.profitems2.remove_shield()
                 # Check collision with cubes
                 adjacent_positions = [(bomb.i + 1, bomb.j), (bomb.i - 1, bomb.j), (bomb.i, bomb.j + 1),
                                       (bomb.i, bomb.j - 1)]
@@ -264,7 +269,7 @@ class Game:
         if item.item_type == 0:  # heart
             hero.add_live()
         if item.item_type == 1:  # shield
-            hero.activate_shield()
+            hero.shield = 1
             profitems.add_shield()
         cord_list[item.i][item.j] = 0
         del item
