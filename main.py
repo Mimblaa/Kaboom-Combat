@@ -123,8 +123,8 @@ class Game:
                 self.hero2,
                 self.timer,
                 *self.items,
-                *self.bombs,
                 *self.cubes,
+                *self.bombs,
                 self.score1,
                 self.score2,
                 self.prof1,
@@ -312,8 +312,8 @@ class Game:
             width = math.floor((self.board.surface.get_width() * 0.7) / 20)
             height = math.floor(
                 (self.board.surface.get_height() * 0.9265) / 16)
-            bomb = Bomb(image_file='images/bomb.png',
-                        x=x, y=y, width=width, height=height, player=player, i=i, j=j)
+            bomb = Bomb(self.board,image_file='images/bomb.png',
+                       width=width, height=height, player=player, i=i, j=j)
             self.bombs.append(bomb)
         else:
             if player == 1:

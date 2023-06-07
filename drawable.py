@@ -179,12 +179,14 @@ class Text:
 
 
 class Bomb(Drawable):
-    def __init__(self, image_file, player, i, j, timer=250, width=30, height=30, x=0, y=0):
+    def __init__(self, board, image_file, player, i, j, timer=250, width=30, height=30):
         self.image = None
         self.width = width
         self.height = height
-        self.x = x
-        self.y = y
+        rows = len(cord_list)
+        columns = len(cord_list[0])
+        self.x = math.ceil((board.surface.get_width() * 0.25) + math.ceil((board.surface.get_width() * 0.7 / columns) * j))
+        self.y = math.ceil((board.surface.get_height() * 0.04) + math.ceil((board.surface.get_height() * 0.9265 / rows) * i))
         super().__init__(width, height, self.x, self.y)
         self.load_image(image_file)
         self.timer = timer
