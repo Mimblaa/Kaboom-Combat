@@ -100,7 +100,7 @@ class Game:
         game.run()
 
     def prepare(self):
-        random_number = random.randint(20, 60)
+        random_number = random.randint(200, 250)
         self.spawn_cubes(random_number, False)
 
     def run(self):
