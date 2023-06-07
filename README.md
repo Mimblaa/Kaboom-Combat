@@ -25,3 +25,7 @@ The third thread is responsible for spawning cubes within the game world. These 
 Lock mechanism is used to control access to the global cord_list, which stores information about the positions of objects. By applying the lock, the game ensures that only one thread can access and modify the cord_list at a time, preventing multiple elements from being written to the same location simultaneously.
 ### Semaphore
 Semaphore is utilized to generate a predetermined number of cubes at the start of the game. The semaphore acts as a synchronization primitive, allowing a limited number of cubes to be spawned initially. This mechanism ensures that the game begins with a balanced and controlled number of cubes, providing a suitable challenge for the players.
+
+## Control
+Controls in the game are simple. Player 1 moves the character using the A, W, S, D keys and places the bomb by pressing the Space bar. Player 2 moves the character using the arrow keys and lays the bomb by pressing Enter (also Return on the numeric keypad).
+### <img width="604" alt="Game Project Concept" src="images/keyboard_photo.png">
