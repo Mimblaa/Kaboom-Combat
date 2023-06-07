@@ -28,4 +28,8 @@ Semaphore is utilized to generate a predetermined number of cubes at the start o
 
 ## Control
 Controls in the game are simple. Player 1 moves the character using the A, W, S, D keys and places the bomb by pressing the Space bar. Player 2 moves the character using the arrow keys and lays the bomb by pressing Enter (also Return on the numeric keypad).
+<<<<<<< HEAD
 ### <img width="604" alt="Game Project Concept" src="images/keyboard_photo.png">
+=======
+<img width="604" alt="Game Project Concept" src="images/keyboard_photo.png">
+>>>>>>> test
