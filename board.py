@@ -11,19 +11,18 @@ class Board:
         self.background = background
 
     def draw(self, *args):
-        if self.background:
-            self.surface.blit(self.background.image, (0, 0))
-        else:
-            self.surface.fill((255, 255, 255))
+        self.surface.blit(self.background.image, (0, 0))
 
         for arg in args:
-            if isinstance(arg, pygame.sprite.Group):
-                arg.draw(self.surface)
-            elif isinstance(arg, Hero):
+            if isinstance(arg, pygame.sprite.Group) or isinstance(arg, Hero) or isinstance(arg, Bomb):
                 arg.draw_on(self.surface)
-                for heart in arg.hearts:
-                    heart.draw_on(self.surface)
-            else:
+                if isinstance(arg, Hero):
+                    for heart in arg.hearts:
+                        heart.draw_on(self.surface)
+                if isinstance(arg, Bomb):
+                    for mark in arg.delete_marks:
+                        mark.draw_on(self.surface)
+            elif not isinstance(arg, tuple):
                 arg.draw_on(self.surface)
 
         pygame.display.update()
@@ -31,11 +30,9 @@ class Board:
 
 class Background:
     def __init__(self, image_file, width, height):
-        self.image = pygame.image.load(image_file)
-        self.width = width
-        self.height = height
+        self.image = pygame.transform.scale(pygame.image.load(image_file), (width, height))
 
     def draw_on(self, surface):
-        scaled_image = pygame.transform.scale(
-            self.image, (self.width, self.height))
-        surface.blit(scaled_image, (0, 0))
+        surface.blit(self.image, (0, 0))
+
+
