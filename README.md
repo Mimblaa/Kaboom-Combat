@@ -1,6 +1,6 @@
-# Kaboom Combat
-"Kaboom Combat" is an action game inspired by the popular game Bomb It. The game aims to provide users with an exciting experience, in which players will be tasked with eliminating their opponents using bombs and various power-ups. The game is written in Python.
+# Kaboom Combat- Operating Systems Project
 
+Project "Kaboom Combat" is an action game inspired by the popular game Bomb It. The game aims to provide users with an exciting experience, in which players will be tasked with eliminating their opponents using bombs and various power-ups. The game is written in Python using threading module.
 
 ## Concept graphic
 <img width="766" alt="Game Project Concept" src="https://user-images.githubusercontent.com/80205707/228075891-b216f051-c020-4ead-aa7e-9c299b088e5c.png">
@@ -28,4 +28,4 @@ Semaphore is utilized to generate a predetermined number of cubes at the start o
 
 ## Control
 Controls in the game are simple. Player 1 moves the character using the A, W, S, D keys and places the bomb by pressing the Space bar. Player 2 moves the character using the arrow keys and lays the bomb by pressing Enter (also Return on the numeric keypad).
-###<img width="604" alt="Game Project Concept" src="images/keyboard_photo.png">
+### <img width="604" alt="Game Project Concept" src="images/keyboard_photo.png">
