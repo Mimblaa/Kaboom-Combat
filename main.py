@@ -57,41 +57,7 @@ class Game:
         self.restart_button = Reset(width, height)
 
     def reset_game(self):
-        self.board_elements = None
-        pygame.init()
-        self.background = Background(
-            'images/background.png', self.width, self.height)
-        self.background2 = Background(
-            'images/blank.png', self.width, self.height)
-        self.board = Board(self.width, self.height, background=self.background)
-        self.hero1 = Hero(self.board, image_file='images/hero1.png', width=30,
-                          height=30, x=self.width * 0.25, y=self.height * 0.04, name="Player 1")
-        self.hero2 = Hero(self.board, image_file='images/hero2.png', width=30, height=30,
-                          x=self.width - self.width * 0.0734, y=self.height * 0.04, name="Player 2")
-        hearts1 = [Heart(width=self.width, height=self.height, live_type=True,
-                         player=1, number=i) for i in range(1, 4)]
-        hearts2 = [Heart(width=self.width, height=self.height, live_type=True,
-                         player=2, number=i) for i in range(1, 4)]
-        self.hero1.set_hearts(hearts1)
-        self.hero2.set_hearts(hearts2)
-        self.timer = Timer(self.width, self.game_time)
-        self.items = []
-        self.bombs = []
-        self.cubes = []
-        self.delete_marks = []
-        self.score1 = Score(self.width, self.height, 1)
-        self.score2 = Score(self.width, self.height, 2)
-        self.prof1 = Profile(self.width, self.height, 1)
-        self.prof2 = Profile(self.width, self.height, 2)
-        self.profitems1 = ProfilePowerUps(self.width, self.height, 1, 0)
-        self.profitems2 = ProfilePowerUps(self.width, self.height, 2, 0)
-        self.text_end = Text(self.width * 0.11, "Time's up!",
-                             self.width * 0.1446, self.height * 0.168)
-        self.text_end_live = Text(self.width * 0.11, "Player died",
-                                  self.width * 0.1446, self.height * 0.168)
-        self.text_points1 = Text(self.width * 0.055, " ", self.width * 0.1446, self.height * 0.507)
-        self.text_points2 = Text(self.width * 0.055, " ", self.width * 0.1446, self.height * 0.6774)
-        self.restart_button = Reset(self.width, self.height)
+        self.__init__(self.width,self.height,self.game_time)
         global cord_list
         cord_list = [[0 for i in range(20)] for j in range(16)]
         cord_list[0][0] = 1
