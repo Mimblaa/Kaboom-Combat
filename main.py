@@ -81,7 +81,7 @@ class Game:
             thread.start()
 
         while not self.handle_events():
-            self.bomb_collision()  # Sprawdzanie kolizji dla każdej bomby
+            self.bomb_collision()
             self.item_collision()
             self.board_elements = [
                 self.background,
@@ -111,12 +111,12 @@ class Game:
             if event.type == pygame.locals.QUIT:
                 pygame.quit()
                 return True
-            elif event.type == pygame.USEREVENT:
+            elif event.type == pygame.USEREVENT and (self.timer.time_left == 0 or self.hero1.lives == 0 or self.hero2.lives == 0):
                 self.board_elements.clear()
                 self.board_elements.append(self.background2)
                 if self.timer.time_left == 0:
                     self.board_elements.append(self.text_end)
-                else:
+                elif self.hero1.lives == 0 or self.hero2.lives == 0:
                     self.board_elements.append(self.text_end_live)
                 self.text_points1.text = f"{self.hero1.name} points: {self.score1.score}"
                 self.text_points2.text = f"{self.hero2.name} points: {self.score2.score}"
@@ -172,8 +172,9 @@ class Game:
             if bomb.timer == 50:
                 delete_marks = []
                 for x, y in [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]:
-                    delete_marks.append(Delete(self.width, self.height, bomb.i + x, bomb.j + y))
-                    bomb.set_marks(delete_marks)
+                    if (bomb.i + x) >= 0 and (bomb.j + y) >= 0:
+                        delete_marks.append(Delete(self.width, self.height, i=bomb.i + x, j=bomb.j + y))
+                        bomb.set_marks(delete_marks)
             if bomb.timer == 0:
                 bomb_position_hero1 = (self.hero1.get_position_i(), self.hero1.get_position_j())
                 bomb_position_hero2 = (self.hero2.get_position_i(), self.hero2.get_position_j())
