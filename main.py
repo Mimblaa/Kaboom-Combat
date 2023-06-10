@@ -9,6 +9,7 @@ import sys
 from board import *
 from drawable import *
 from collisions import Collisions
+from spawn import Spawn
 
 # Create a lock object for synchronization
 lock = th.Lock()
@@ -25,7 +26,7 @@ cord_list[0][19] = 1  # Set the value at index (0, 19) to 1
 semaphore = th.Semaphore(10)
 
 
-class Game(Collisions):
+class Game(Collisions, Spawn):
     def __init__(self, width, height, game_time):
         """
         Initialize the game object.
@@ -242,114 +243,6 @@ class Game(Collisions):
                     # Spawn bombs
                     hero_obj.bomb = 0
                     self.spawn_bombs(hero_obj.rect.x, hero_obj.rect.y, hero)
-
-    def spawn_items(self):
-        """
-        Spawn items at random positions on the game board.
-        """
-        global cord_list
-
-        while True:
-            i = random.randrange(len(cord_list))
-            j = random.randrange(len(cord_list[0]))
-
-            lock.acquire()
-
-            # Check if the selected position is available
-            if cord_list[i][j] == 0:
-                cord_list[i][j] = 1
-
-                # Calculate the width and height of the item based on the board size
-                width = math.floor((self.board.surface.get_width() * 0.7) / 20)
-                height = math.floor(
-                    (self.board.surface.get_height() * 0.9265) / 16)
-
-                # Create a new item and add it to the list
-                item = Item(self.board, item_type=random.randrange(
-                    2), width=width, height=height, i=i, j=j)
-                self.items.append(item)
-
-            lock.release()
-            pygame.time.wait(5000)
-
-    def spawn_bombs(self, x, y, player):
-        """
-        Spawn bombs at the specified position on the game board.
-
-        Args:
-            x (int): The x-coordinate of the position.
-            y (int): The y-coordinate of the position.
-            player (int): The player number.
-        """
-        global cord_list
-
-        # Map the position to the corresponding indices in cord_list
-        j = math.floor(
-            (x - self.board.surface.get_width() * 0.25) / (
-                (self.board.surface.get_width() * 0.7) / len(cord_list[0])))
-        i = math.floor((y - self.board.surface.get_height() * 0.04) / (
-            (self.board.surface.get_height() * 0.9265) / len(cord_list)))
-
-        lock.acquire()
-
-        # Check if the selected position is available
-        if cord_list[i][j] == 0:
-            cord_list[i][j] = 1
-
-            # Calculate the width and height of the bomb based on the board size
-            width = math.floor((self.board.surface.get_width() * 0.7) / 20)
-            height = math.floor(
-                (self.board.surface.get_height() * 0.9265) / 16)
-
-            # Create a new bomb and add it to the list
-            bomb = Bomb(self.board, image_file='images/bomb.png',
-                        width=width, height=height, player=player, i=i, j=j)
-            self.bombs.append(bomb)
-        else:
-            if player == 1:
-                self.hero1.bomb = 1
-            elif player == 2:
-                self.hero2.bomb = 1
-
-        lock.release()
-
-    def spawn_cubes(self, iteration=1000000000000, wait=True):
-        """
-        Spawn cubes on the game board.
-
-        Args:
-            iteration (int, optional): The number of iterations to spawn cubes. Defaults to 1000000000000.
-            wait (bool, optional): Whether to wait between spawning cubes. Defaults to True.
-        """
-        rows = len(cord_list)
-        columns = len(cord_list[0])
-
-        for _ in range(iteration):
-            i = random.randrange(rows)
-            j = random.randrange(columns)
-
-            lock.acquire()
-
-            # Check if the selected position is available
-            if cord_list[i][j] == 0:
-                cord_list[i][j] = 1
-
-                # Calculate the position, width, and height of the cube based on the board size
-                x = math.ceil(
-                    (self.board.surface.get_width() * 0.25) + math.ceil(
-                        (self.board.surface.get_width() * 0.7 / columns) * j))
-                y = math.ceil((self.board.surface.get_height() * 0.04) + math.ceil(
-                    (self.board.surface.get_height() * 0.9265 / rows) * i))
-                width = math.floor((self.board.surface.get_width() * 0.7) / 20)
-                height = math.floor(
-                    (self.board.surface.get_height() * 0.9265) / 16)
-
-                # Create a new cube and add it to the list
-                cube = Cube(x, y, width, height, i=i, j=j)
-                self.cubes.append(cube)
-
-            lock.release()
-            pygame.time.wait(5000) if wait else None
 
     def check_collision(self, hero):
         """
