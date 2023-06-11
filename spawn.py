@@ -65,24 +65,34 @@ class Spawn:
 
             # Check if the selected position is available
             if main.cord_list[i][j] == 0 and not self.is_corner_or_adjacent(i, j, columns):
-                main.cord_list[i][j] = 1
+                # Check collision with heroes
+                hero_collision = False
+                for hero in [self.hero1, self.hero2]:
+                    hero_i = hero.get_position_i()
+                    hero_j = hero.get_position_j()
+                    if (abs(hero_i - i) == 1 and hero_j == j) or (hero_i == i and abs(hero_j - j) == 1):
+                        hero_collision = True
+                        break
 
-                # Calculate the position, width, and height of the cube based on the board size
-                x = math.ceil(
-                    (self.board.surface.get_width() * 0.25) + math.ceil(
-                        (self.board.surface.get_width() * 0.7 / columns) * j))
-                y = math.ceil((self.board.surface.get_height() * 0.04) + math.ceil(
-                    (self.board.surface.get_height() * 0.9265 / rows) * i))
-                width = math.floor((self.board.surface.get_width() * 0.7) / 20)
-                height = math.floor(
-                    (self.board.surface.get_height() * 0.9265) / 16)
+                if not hero_collision:
+                    main.cord_list[i][j] = 1
 
-                # Create a new cube and add it to the list
-                cube = dr.Cube(x, y, width, height, i=i, j=j)
-                self.cubes.append(cube)
+                    # Calculate the position, width, and height of the cube based on the board size
+                    x = math.ceil(
+                        (self.board.surface.get_width() * 0.25) + math.ceil(
+                            (self.board.surface.get_width() * 0.7 / columns) * j))
+                    y = math.ceil((self.board.surface.get_height() * 0.04) + math.ceil(
+                        (self.board.surface.get_height() * 0.9265 / rows) * i))
+                    width = math.floor((self.board.surface.get_width() * 0.7) / 20)
+                    height = math.floor(
+                        (self.board.surface.get_height() * 0.9265) / 16)
+
+                    # Create a new cube and add it to the list
+                    cube = dr.Cube(x, y, width, height, i=i, j=j)
+                    self.cubes.append(cube)
 
             main.lock.release()
-            pygame.time.wait(5000) if wait else None
+            pygame.time.wait(10) if wait else None
 
     def spawn_items(self):
         """
