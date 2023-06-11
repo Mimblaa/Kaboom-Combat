@@ -19,7 +19,8 @@ class Drawable:
         """
         self.width = width
         self.height = height
-        self.surface = pygame.Surface((width, height), pygame.SRCALPHA, 32).convert_alpha()
+        self.surface = pygame.Surface(
+            (width, height), pygame.SRCALPHA, 32).convert_alpha()
         self.rect = self.surface.get_rect(x=x, y=y)
 
     def draw_on(self, surface):
@@ -66,7 +67,8 @@ class Hero(Drawable):
         Args:
             image_file: path to the image file for the hero
         """
-        self.image = pygame.transform.scale(pygame.image.load(image_file), (self.width, self.height))
+        self.image = pygame.transform.scale(
+            pygame.image.load(image_file), (self.width, self.height))
         self.surface.blit(self.image, (0, 0))
 
     def set_hearts(self, hearts):
@@ -100,8 +102,8 @@ class Hero(Drawable):
                 min(x, board.surface.get_width() - self.width - board.surface.get_width() * 0.0484 - self.rect.x))
         y = max(board.surface.get_height() * 0.04 - self.rect.y,
                 min(y, board.surface.get_height() - self.height - board.surface.get_height() * 0.032 - self.rect.y))
-        self.rect.x += x
-        self.rect.y += y
+        self.rect.x += x * 1.5
+        self.rect.y += y * 1.5
 
     def get_position_j(self):
         """
@@ -111,7 +113,7 @@ class Hero(Drawable):
             int: The column index.
         """
         return math.floor((self.rect.x - self.board.surface.get_width() * 0.25) / (
-                    self.board.surface.get_width() * 0.7 / len(cord_list[0])))
+            self.board.surface.get_width() * 0.7 / len(cord_list[0])))
 
     def get_position_i(self):
         """
@@ -121,7 +123,7 @@ class Hero(Drawable):
             int: The row index.
         """
         return math.floor((self.rect.y - self.board.surface.get_height() * 0.04) / (
-                    self.board.surface.get_height() * 0.9265 / len(cord_list)))
+            self.board.surface.get_height() * 0.9265 / len(cord_list)))
 
     def remove_live(self):
         """
@@ -235,9 +237,12 @@ class Delete:
         columns = len(cord_list[0])
         x = math.floor((width * 0.7) / rows)
         y = math.floor((height * 0.9265) / columns)
-        self.x_pos = math.ceil((width * 0.25) + math.ceil((width * 0.7 / columns) * j))
-        self.y_pos = math.ceil((height * 0.04) + math.ceil((height * 0.9265 / rows) * i))
-        self.image = pygame.transform.scale(pygame.image.load(self.image_path), (x, y))
+        self.x_pos = math.ceil(
+            (width * 0.25) + math.ceil((width * 0.7 / columns) * j))
+        self.y_pos = math.ceil(
+            (height * 0.04) + math.ceil((height * 0.9265 / rows) * i))
+        self.image = pygame.transform.scale(
+            pygame.image.load(self.image_path), (x, y))
         self.rect = self.image.get_rect(x=self.x_pos, y=self.y_pos)
 
     def draw_on(self, surface):
@@ -268,8 +273,10 @@ class Item(Drawable):
         self.j = j
         rows = len(cord_list)
         columns = len(cord_list[0])
-        x = math.ceil((board.surface.get_width() * 0.25) + math.ceil((board.surface.get_width() * 0.7 / columns) * j))
-        y = math.ceil((board.surface.get_height() * 0.04) + math.ceil((board.surface.get_height() * 0.9265 / rows) * i))
+        x = math.ceil((board.surface.get_width() * 0.25) +
+                      math.ceil((board.surface.get_width() * 0.7 / columns) * j))
+        y = math.ceil((board.surface.get_height() * 0.04) +
+                      math.ceil((board.surface.get_height() * 0.9265 / rows) * i))
         super().__init__(width, height, x, y)
         self.item_type = item_type
         image_file = {
@@ -285,7 +292,8 @@ class Item(Drawable):
         Args:
             image_file: file path of the image
         """
-        self.image = pygame.transform.scale(pygame.image.load(image_file), (self.width, self.height))
+        self.image = pygame.transform.scale(
+            pygame.image.load(image_file), (self.width, self.height))
         self.surface.blit(self.image, (0, 0))
 
 
@@ -323,7 +331,8 @@ class Timer:
             surface: surface to draw the timer on
         """
         text = self.font.render(self.clock_format, True, (0, 0, 0))
-        surface.blit(text, (surface.get_width() / 21, surface.get_height() / 9))
+        surface.blit(text, (surface.get_width() /
+                     21, surface.get_height() / 9))
 
 
 class Text:
@@ -459,7 +468,8 @@ class Profile(Drawable):
             height: height of the profile object
             player: player identifier
         """
-        super().__init__(width, height, width * 0.0756, height * 0.394 + (player - 1) * height * 0.308)
+        super().__init__(width, height, width * 0.0756,
+                         height * 0.394 + (player - 1) * height * 0.308)
         self.image = None
         self.x_pos = width * 0.0756
         self.y_pos = height * 0.394 + (player - 1) * height * 0.308
@@ -499,7 +509,8 @@ class ProfilePowerUps(Drawable):
             player: player identifier
             power_up: power-up type (1 for shield, 0 for blank)
         """
-        super().__init__(width, height, width * 0.1546, height * 0.396 + (player - 1) * height * 0.308)
+        super().__init__(width, height, width * 0.1546,
+                         height * 0.396 + (player - 1) * height * 0.308)
         self.image = None
         self.player = player
         self.power_up = power_up
@@ -554,7 +565,8 @@ class Score:
         """
         self.score = 0
         self.font = pygame.font.SysFont('monospace', int(width * 0.02))
-        self.position = (width * 0.045, height * 0.5197 + (player - 1) * height * 0.307)
+        self.position = (width * 0.045, height * 0.5197 +
+                         (player - 1) * height * 0.307)
 
     def draw_on(self, surface):
         """
