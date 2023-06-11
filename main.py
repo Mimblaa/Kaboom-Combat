@@ -18,10 +18,6 @@ lock = th.Lock()
 # with dimensions 16x20, initialized with zeros
 cord_list = [[0 for i in range(20)] for j in range(16)]
 
-# Set the values of specific elements in cord_list
-cord_list[0][0] = 1  # Set the value at index (0, 0) to 1
-cord_list[0][19] = 1  # Set the value at index (0, 19) to 1
-
 # Create a semaphore object with an initial value of 10
 semaphore = th.Semaphore(10)
 
@@ -109,8 +105,6 @@ class Game(Collisions, Spawn):
         # Reset cord_list
         global cord_list
         cord_list = [[0 for i in range(20)] for j in range(16)]
-        cord_list[0][0] = 1
-        cord_list[0][19] = 1
 
         # Prepare and run the game again
         game.prepare()

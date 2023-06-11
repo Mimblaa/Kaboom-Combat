@@ -15,14 +15,13 @@ class Spawn:
             y (int): The y-coordinate of the position.
             player (int): The player number.
         """
-        global cord_list
 
         # Map the position to the corresponding indices in cord_list
         j = math.floor(
             (x - self.board.surface.get_width() * 0.25) / (
-                (self.board.surface.get_width() * 0.7) / len(main.cord_list[0])))
+                    (self.board.surface.get_width() * 0.7) / len(main.cord_list[0])))
         i = math.floor((y - self.board.surface.get_height() * 0.04) / (
-            (self.board.surface.get_height() * 0.9265) / len(main.cord_list)))
+                (self.board.surface.get_height() * 0.9265) / len(main.cord_list)))
 
         main.lock.acquire()
 
@@ -65,7 +64,7 @@ class Spawn:
             main.lock.acquire()
 
             # Check if the selected position is available
-            if main.cord_list[i][j] == 0:
+            if main.cord_list[i][j] == 0 and not self.is_corner_or_adjacent(i, j, columns):
                 main.cord_list[i][j] = 1
 
                 # Calculate the position, width, and height of the cube based on the board size
@@ -89,7 +88,6 @@ class Spawn:
         """
         Spawn items at random positions on the game board.
         """
-        global cord_list
 
         while True:
             i = random.randrange(len(main.cord_list))
@@ -113,3 +111,18 @@ class Spawn:
 
             main.lock.release()
             pygame.time.wait(5000)
+
+    def is_corner_or_adjacent(self, i, j, columns):
+        """
+        Check if the given position is a corner or adjacent to the corner.
+
+        Args:
+            i (int): Row index.
+            j (int): Column index.
+            columns (int): Number of columns in the board.
+
+        Returns:
+            bool: True if the position is a corner or adjacent to the corner, False otherwise.
+        """
+        return (i == 0 and (j == 0 or j == 1)) or (i == 1 and (j == 0 or j == columns - 1)) or (
+                    i == 0 and (j == columns - 1 or j == columns - 2))
