@@ -111,7 +111,7 @@ class Game(Collisions, Spawn):
         """
         Prepare the game by spawning cubes.
         """
-        random_number = random.randint(200, 250)
+        random_number = random.randint(300, 350)
         self.spawn_cubes(random_number, False)
 
     def run(self):
