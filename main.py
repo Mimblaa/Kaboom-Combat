@@ -38,6 +38,8 @@ class Game(Collisions, Spawn):
         pygame.init()
 
         # Create background objects
+        self.background_start = Background(
+            'images/Start_screen.png', width, height)
         self.background = Background(
             'images/background.png', width, height)
         self.background2 = Background(
@@ -90,8 +92,27 @@ class Game(Collisions, Spawn):
         self.text_points2 = Text(
             width * 0.055, " ", width * 0.1446, height * 0.6774)
 
-        # Create restart button object
-        self.restart_button = Reset(width, height)
+        # Create button objects
+        self.restart_button = Button(width, height, "images/restart.png")
+        self.start_button = Button(width, height, "images/start.png")
+
+    def start_screen(self):
+        """
+        Display the start screen with a button to start the game.
+        """
+        self.board.draw(self.background_start, self.start_button)
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.locals.QUIT:
+                    # Quit the game
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left mouse button clicked
+                    if self.start_button.rect.collidepoint(
+                            pygame.mouse.get_pos()):  # Check if click occurred on the button
+                        return
+
+            pygame.display.flip()
 
     def reset_game(self):
         """
@@ -104,7 +125,6 @@ class Game(Collisions, Spawn):
         cord_list = [[0 for i in range(20)] for j in range(16)]
 
         # Prepare and run the game again
-        game.prepare()
         game.run()
 
     def prepare(self):
@@ -118,6 +138,12 @@ class Game(Collisions, Spawn):
         """
         Run the game loop.
         """
+
+        # Display the start screen
+        self.start_screen()
+
+        # Prepare game
+        self.prepare()
 
         # Create threads for timer countdown, spawning items, and spawning cubes
         threads = [
@@ -255,5 +281,4 @@ class Game(Collisions, Spawn):
 
 if __name__ == "__main__":
     game = Game(1200, 600, 80)
-    game.prepare()
     game.run()

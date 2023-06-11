@@ -66,5 +66,3 @@ class Background:
             surface: surface to draw the background on
         """
         surface.blit(self.image, (0, 0))
-
-

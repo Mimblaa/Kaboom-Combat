@@ -191,16 +191,16 @@ class Heart:
         surface.blit(self.image, self.rect)
 
 
-class Reset:
-    def __init__(self, width, height):
+class Button:
+    def __init__(self, width, height, image):
         """
-        Initialize a reset button object.
+        Initialize a button object.
 
         Args:
         - width: width of the game board
         - height: height of the game board
         """
-        self.image_path = 'images/restart.png'
+        self.image_path = image
         self.width = width
         self.height = height
         self.x_pos = width * 0.4
@@ -211,10 +211,10 @@ class Reset:
 
     def draw_on(self, surface):
         """
-        Draw the reset button on the specified surface.
+        Draw button on the specified surface.
 
         Args:
-            surface: surface to draw the reset button on
+            surface: surface to draw button on
         """
         surface.blit(self.image, self.rect)
 
