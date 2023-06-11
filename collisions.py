@@ -102,3 +102,19 @@ class Collisions:
             profitems.add_shield()
         main.cord_list[item.i][item.j] = 0
         del item
+
+
+def check_collision(hero, cubes):
+    """
+    Check collision between the hero and cubes.
+
+    Args:
+        hero (Hero): The hero object to check collision for.
+
+    Returns:
+        bool: True if collision occurs, False otherwise.
+    """
+    for cube in cubes:
+        if hero.rect.colliderect(cube.rect):
+            return True
+    return False

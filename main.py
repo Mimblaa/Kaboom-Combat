@@ -8,7 +8,7 @@ import random
 import sys
 from board import *
 from drawable import *
-from collisions import Collisions
+from collisions import Collisions, check_collision
 from spawn import Spawn
 
 # Create a lock object for synchronization
@@ -122,8 +122,11 @@ class Game(Collisions, Spawn):
 
         # Reset cord_list
         global cord_list
+        cord_list = None
         cord_list = [[0 for i in range(20)] for j in range(16)]
-
+        self.items = []
+        self.bombs = []
+        self.cubes = []
         # Prepare and run the game again
         game.run()
 
@@ -250,33 +253,18 @@ class Game(Collisions, Spawn):
         for key, movement in key_mappings.items():
             if keys[key]:
                 x, y, action, hero = movement
-                x = x * 1.4
-                y = y * 1.4
+                x = x * 1.49
+                y = y * 1.49
                 hero_obj = self.hero1 if hero == 1 else self.hero2
                 if action == 0:
                     # Move the hero and check for collisions
                     hero_obj.move(x, y, self.board)
-                    if self.check_collision(hero_obj):
+                    if check_collision(hero=hero_obj, cubes=self.cubes):
                         hero_obj.move(-x, -y, self.board)
                 elif action == 1 and hero_obj.bomb == 1:
                     # Spawn bombs
                     hero_obj.bomb = 0
                     self.spawn_bombs(hero_obj.rect.x, hero_obj.rect.y, hero)
-
-    def check_collision(self, hero):
-        """
-        Check collision between the hero and cubes.
-
-        Args:
-            hero (Hero): The hero object to check collision for.
-
-        Returns:
-            bool: True if collision occurs, False otherwise.
-        """
-        for cube in self.cubes:
-            if hero.rect.colliderect(cube.rect):
-                return True
-        return False
 
 
 if __name__ == "__main__":
