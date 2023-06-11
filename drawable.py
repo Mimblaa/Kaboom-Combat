@@ -102,8 +102,8 @@ class Hero(Drawable):
                 min(x, board.surface.get_width() - self.width - board.surface.get_width() * 0.0484 - self.rect.x))
         y = max(board.surface.get_height() * 0.04 - self.rect.y,
                 min(y, board.surface.get_height() - self.height - board.surface.get_height() * 0.032 - self.rect.y))
-        self.rect.x += x * 1.5
-        self.rect.y += y * 1.5
+        self.rect.x += x
+        self.rect.y += y
 
     def get_position_j(self):
         """
