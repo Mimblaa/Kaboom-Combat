@@ -18,9 +18,6 @@ lock = th.Lock()
 # with dimensions 16x20, initialized with zeros
 cord_list = [[0 for i in range(20)] for j in range(16)]
 
-# Create a semaphore object with an initial value of 10
-semaphore = th.Semaphore(10)
-
 
 class Game(Collisions, Spawn):
     def __init__(self, width, height, game_time):

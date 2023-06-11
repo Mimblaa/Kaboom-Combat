@@ -70,7 +70,7 @@ class Spawn:
                 for hero in [self.hero1, self.hero2]:
                     hero_i = hero.get_position_i()
                     hero_j = hero.get_position_j()
-                    if (abs(hero_i - i) == 1 and hero_j == j) or (hero_i == i and abs(hero_j - j) == 1):
+                    if abs(hero_i - i) <= 1 and abs(hero_j - j) <= 1:
                         hero_collision = True
                         break
 
@@ -92,7 +92,7 @@ class Spawn:
                     self.cubes.append(cube)
 
             main.lock.release()
-            pygame.time.wait(10) if wait else None
+            pygame.time.wait(5000) if wait else None
 
     def spawn_items(self):
         """
