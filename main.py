@@ -224,6 +224,8 @@ class Game(Collisions, Spawn):
         for key, movement in key_mappings.items():
             if keys[key]:
                 x, y, action, hero = movement
+                x = x * 1.5
+                y = y * 1.5
                 hero_obj = self.hero1 if hero == 1 else self.hero2
                 if action == 0:
                     # Move the hero and check for collisions
