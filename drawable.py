@@ -192,7 +192,7 @@ class Heart:
 
 
 class Button:
-    def __init__(self, width, height, image):
+    def __init__(self, width, height, button_height, image):
         """
         Initialize a button object.
 
@@ -204,7 +204,7 @@ class Button:
         self.width = width
         self.height = height
         self.x_pos = width * 0.4
-        self.y_pos = height * 0.81
+        self.y_pos = button_height
         self.image = pygame.transform.scale(pygame.image.load(self.image_path),
                                             (int(self.width * 0.2), int(self.height * 0.118)))
         self.rect = self.image.get_rect(x=self.x_pos, y=self.y_pos)
@@ -235,8 +235,8 @@ class Delete:
         self.height = height
         rows = len(cord_list)
         columns = len(cord_list[0])
-        x = math.floor((width * 0.7) / rows)
-        y = math.floor((height * 0.9265) / columns)
+        x = math.floor((width * 0.65) / rows)
+        y = math.floor((height * 0.91) / columns)
         self.x_pos = math.ceil(
             (width * 0.25) + math.ceil((width * 0.7 / columns) * j))
         self.y_pos = math.ceil(
@@ -360,6 +360,61 @@ class Text:
         """
         text = self.font.render(self.text, True, (0, 0, 0))
         surface.blit(text, (self.x, self.y))
+
+
+class TextField:
+    def __init__(self, rect, width):
+        """
+        Initialize a TextField object.
+
+        Args:
+            rect (tuple): The position and size of the text field (x, y, width, height).
+            width (int): The width of the game window.
+
+        Attributes:
+            rect (pygame.Rect): The rectangle representing the position and size of the text field.
+            color (pygame.Color): The color of the text.
+            text (str): The current text in the text field.
+            font (pygame.font.Font): The font used for rendering the text.
+            active (bool): Indicates whether the text field is currently active (editable).
+        """
+        self.rect = pygame.Rect(rect)
+        self.color = pygame.Color('purple')
+        self.text = ''
+        self.font = pygame.font.Font(None, int(width * 0.044))
+        self.active = False
+
+    def handle_event(self, event):
+        """
+        Handle events for the text field.
+
+        Args:
+            event (pygame.event.Event): The event to handle.
+        """
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            # Check if the mouse click occurred within the text field
+            self.active = self.rect.collidepoint(event.pos)
+        elif event.type == pygame.KEYDOWN and self.active:
+            if event.key == pygame.K_RETURN:
+                # End editing when the Enter key is pressed
+                self.active = False
+            elif event.key == pygame.K_BACKSPACE:
+                # Remove the last character when the Backspace key is pressed
+                self.text = self.text[:-1]
+            else:
+                # Add the entered character to the text
+                self.text += event.unicode
+
+    def draw_on(self, surface):
+        """
+        Draw the text field on the given surface.
+
+        Args:
+            surface (pygame.Surface): The surface to draw on.
+        """
+        # Render the text
+        text_surface = self.font.render(self.text, True, self.color)
+        surface.blit(text_surface, (self.rect.x + 5, self.rect.y + 5))
 
 
 class Bomb(Drawable):

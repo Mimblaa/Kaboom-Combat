@@ -52,7 +52,7 @@ class Game(Collisions, Spawn):
         self.hero1 = Hero(self.board, image_file='images/hero1.png', width=30,
                           height=30, x=width - width * 0.0734, y=height * 0.04, name="Player 1")
         self.hero2 = Hero(self.board, image_file='images/hero2.png', width=30, height=30,
-                          x=width * 0.25, y=height * 0.04,  name="Player 2")
+                          x=width * 0.25, y=height * 0.04, name="Player 2")
 
         # Create heart objects for each player
         hearts1 = [Heart(width=width, height=height, live_type=True,
@@ -91,27 +91,55 @@ class Game(Collisions, Spawn):
             width * 0.055, " ", width * 0.1446, height * 0.507)
         self.text_points2 = Text(
             width * 0.055, " ", width * 0.1446, height * 0.6774)
+        self.text_input1 = Text(
+            width * 0.055, " ", width * 0.1446, height * 0.507)
+        self.text_input2 = Text(
+            width * 0.055, " ", width * 0.1446, height * 0.6774)
+        self.hero1_name = Text(width * 0.02, "Player 1",
+                               width * 0.045, height * 0.33)
+        self.hero2_name = Text(width * 0.02, "Player 2",
+                               width * 0.045, height * 0.63)
 
         # Create button objects
-        self.restart_button = Button(width, height, "images/restart.png")
-        self.start_button = Button(width, height, "images/start.png")
+        self.restart_button = Button(width, height, height * 0.81, "images/restart.png")
+        self.start_button = Button(width, height, height * 0.844, "images/start.png")
+
+        # Create text input object
+        self.text_field = TextField((width * 0.17, height * 0.672, width * 0.195, height * 0.0645), width)
+        self.text_field2 = TextField((width * 0.645, height * 0.672, width * 0.195, height * 0.0645), width)
 
     def start_screen(self):
         """
         Display the start screen with a button to start the game.
         """
-        self.board.draw(self.background_start, self.start_button)
+
+        # Draw the elements on the screen
+        elements = [self.background_start, self.start_button, self.text_field, self.text_field2]
+        self.board.draw(*elements)
+
         while True:
             for event in pygame.event.get():
+                self.text_field.handle_event(event)
+                self.text_field2.handle_event(event)
+
                 if event.type == pygame.locals.QUIT:
                     # Quit the game
                     pygame.quit()
                     sys.exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left mouse button clicked
-                    if self.start_button.rect.collidepoint(
-                            pygame.mouse.get_pos()):  # Check if click occurred on the button
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    # Check if the left mouse button was clicked on the start button
+                    if self.start_button.rect.collidepoint(pygame.mouse.get_pos()):
+                        # Set the names of the heroes based on the text in the text fields
+                        self.hero1.name = self.text_field.text
+                        self.hero2.name = self.text_field2.text
+                        self.hero1_name.text = self.text_field.text
+                        self.hero2_name.text = self.text_field2.text
                         return
 
+            # Redraw the elements on the screen
+            self.board.draw(*elements)
+
+            # Update the display
             pygame.display.flip()
 
     def reset_game(self):
@@ -179,6 +207,8 @@ class Game(Collisions, Spawn):
                 self.prof2,
                 self.profitems1,
                 self.profitems2,
+                self.hero1_name,
+                self.hero2_name,
             ]
 
             # Draw the board and board elements
@@ -203,7 +233,8 @@ class Game(Collisions, Spawn):
                 # Quit the game
                 pygame.quit()
                 return True
-            elif event.type == pygame.USEREVENT and (self.timer.time_left == 0 or self.hero1.lives == 0 or self.hero2.lives == 0):
+            elif event.type == pygame.USEREVENT and (
+                    self.timer.time_left == 0 or self.hero1.lives == 0 or self.hero2.lives == 0):
                 # Game over condition reached
                 self.board_elements.clear()
                 self.board_elements.append(self.background2)
@@ -255,7 +286,7 @@ class Game(Collisions, Spawn):
                 x, y, action, hero = movement
                 x = x * 1.49
                 y = y * 1.49
-                hero_obj = self.hero1 if hero == 1 else self.hero2
+                hero_obj = self.hero1 if hero == 2 else self.hero2
                 if action == 0:
                     # Move the hero and check for collisions
                     hero_obj.move(x, y, self.board)

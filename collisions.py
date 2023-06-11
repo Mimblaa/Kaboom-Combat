@@ -11,7 +11,7 @@ class Collisions:
             if bomb.timer == 50:
                 delete_marks = []
                 for x, y in [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]:
-                    if (bomb.i + x) >= 0 and (bomb.j + y) >= 0:
+                    if (bomb.i + x) >= 0 and (bomb.j + y) >= 0 and (bomb.j + y) <= len(main.cord_list[0]) - 1:
                         delete_marks.append(
                             dr.Delete(self.width, self.height, i=bomb.i + x, j=bomb.j + y))
                         bomb.set_marks(delete_marks)
