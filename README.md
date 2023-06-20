@@ -26,4 +26,4 @@ Lock mechanism is used to control access to the global cord_list, which stores i
 
 ## Control
 Controls in the game are simple. Player 1 moves the character using the A, W, S, D keys and places the bomb by pressing the Space bar. Player 2 moves the character using the arrow keys and lays the bomb by pressing Enter (also Return on the numeric keypad).
-### <img width="604" alt="Game Project Concept" src="images/keyboard.png">
+### <img width="704" alt="Game Project Concept" src="images/keyboard.png">
