@@ -363,7 +363,7 @@ class Text:
 
 
 class TextField:
-    def __init__(self, rect, width):
+    def __init__(self, rect, width,color):
         """
         Initialize a TextField object.
 
@@ -379,9 +379,9 @@ class TextField:
             active (bool): Indicates whether the text field is currently active (editable).
         """
         self.rect = pygame.Rect(rect)
-        self.color = pygame.Color('purple')
+        self.color = pygame.Color(color)
         self.text = ''
-        self.font = pygame.font.Font(None, int(width * 0.044))
+        self.font = pygame.font.Font(None, int(width * 0.034))
         self.active = False
 
     def handle_event(self, event):

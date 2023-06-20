@@ -105,8 +105,8 @@ class Game(Collisions, Spawn):
         self.start_button = Button(width, height, height * 0.844, "images/start.png")
 
         # Create text input object
-        self.text_field = TextField((width * 0.17, height * 0.672, width * 0.195, height * 0.0645), width)
-        self.text_field2 = TextField((width * 0.645, height * 0.672, width * 0.195, height * 0.0645), width)
+        self.text_field = TextField((width * 0.17, height * 0.672, width * 0.195, height * 0.0645), width, '#7843E6')
+        self.text_field2 = TextField((width * 0.645, height * 0.672, width * 0.195, height * 0.0645), width, '#FF0099')
 
     def start_screen(self):
         """
@@ -148,13 +148,14 @@ class Game(Collisions, Spawn):
         """
         self.__init__(self.width, self.height, self.game_time)
 
-        # Reset cord_list
-        global cord_list
-        cord_list = None
-        cord_list = [[0 for i in range(20)] for j in range(16)]
+        # Reset cord_list and other list
         self.items = []
         self.bombs = []
         self.cubes = []
+        lock.acquire()
+        global cord_list
+        cord_list = [[0 for i in range(20)] for j in range(16)]
+        lock.release()
         # Prepare and run the game again
         game.run()
 
@@ -286,7 +287,7 @@ class Game(Collisions, Spawn):
                 x, y, action, hero = movement
                 x = x * 1.49
                 y = y * 1.49
-                hero_obj = self.hero1 if hero == 2 else self.hero2
+                hero_obj = self.hero2 if hero == 2 else self.hero1
                 if action == 0:
                     # Move the hero and check for collisions
                     hero_obj.move(x, y, self.board)
@@ -299,5 +300,5 @@ class Game(Collisions, Spawn):
 
 
 if __name__ == "__main__":
-    game = Game(1200, 600, 80)
+    game = Game(1200, 600, 110)
     game.run()

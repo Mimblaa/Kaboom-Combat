@@ -24,25 +24,17 @@ class Spawn:
                 (self.board.surface.get_height() * 0.9265) / len(main.cord_list)))
 
         main.lock.acquire()
+        main.cord_list[i][j] = 1
+         # Calculate the width and height of the bomb based on the board size
+        width = math.floor((self.board.surface.get_width() * 0.7) / 20)
+        height = math.floor(
+            (self.board.surface.get_height() * 0.9265) / 16)
 
-        # Check if the selected position is available
-        if main.cord_list[i][j] == 0:
-            main.cord_list[i][j] = 1
+        # Create a new bomb and add it to the list
+        bomb = dr.Bomb(self.board, image_file='images/bomb.png',
+                       width=width, height=height, player=player, i=i, j=j)
+        self.bombs.append(bomb)
 
-            # Calculate the width and height of the bomb based on the board size
-            width = math.floor((self.board.surface.get_width() * 0.7) / 20)
-            height = math.floor(
-                (self.board.surface.get_height() * 0.9265) / 16)
-
-            # Create a new bomb and add it to the list
-            bomb = dr.Bomb(self.board, image_file='images/bomb.png',
-                           width=width, height=height, player=player, i=i, j=j)
-            self.bombs.append(bomb)
-        else:
-            if player == 1:
-                self.hero1.bomb = 1
-            elif player == 2:
-                self.hero2.bomb = 1
 
         main.lock.release()
 

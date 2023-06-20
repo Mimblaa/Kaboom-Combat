@@ -59,8 +59,11 @@ class Collisions:
                             main.lock.release()
                             break
 
-                self.hero1.bomb = 1 if bomb.player == 1 else 2
-                self.hero2.bomb = 1 if bomb.player == 2 else 1
+                if bomb.player == 1:
+                    self.hero1.bomb = 1
+                else:
+                    self.hero2.bomb = 1
+
                 # Remove bomb after checking collisions
                 self.bombs.remove(bomb)
 
